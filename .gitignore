@@ -7,3 +7,6 @@ Thumbs.db
 .easyeda-mcp-pro/
 ltspice-mcp.toml
 __pycache__/
+
+# Playwright MCP run artefacts
+.playwright-mcp/

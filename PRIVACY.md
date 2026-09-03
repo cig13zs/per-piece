@@ -7,8 +7,9 @@ Last updated: 4 September 2026
 Nothing.
 
 Per Piece does not collect, transmit, sell, or share any data. There is no
-server, no analytics, no tracking pixel, no crash reporter and no third-party
-service of any kind. The extension never makes a network request on its own.
+server, no analytics, no tracking pixel, no crash reporter, no API key, no AI
+model and no third-party service of any kind. The extension never makes a
+network request on its own.
 
 ## Reporting a wrong price
 
@@ -29,12 +30,22 @@ session and referral identifiers.
 
 ## What it reads
 
-On Shopee Philippines and Lazada Philippines pages only, the extension reads
-the product titles and prices that are already displayed on the page. It uses
-them to calculate a price per unit and to draw a small badge next to the price.
+On the shopping sites listed in the extension's manifest — Shopee, Lazada,
+Amazon, eBay, AliExpress, Temu, Shein, Walmart, Target, Costco, Flipkart and
+TikTok Shop — the extension reads the product titles and prices that are
+already displayed on the page. It uses them to calculate a price per unit and
+to draw a small badge next to the price.
 
 That reading happens in your browser and the result is discarded when you leave
 the page. Nothing is written to disk, and nothing leaves your device.
+
+## Scan this page
+
+On any other website the extension does nothing at all unless you open the
+popup and press **Scan this page**. That grants access to that one tab, at that
+moment, under Chrome's `activeTab` permission, and runs the same reading and
+arithmetic described above. It does not persist, it does not extend to other
+tabs, and closing the popup without pressing the button grants nothing.
 
 ## What is stored
 
@@ -48,10 +59,18 @@ Removing the extension removes it.
 
 **`storage`** — saves the on/off switch described above. Nothing else is stored.
 
-**Access to shopee.ph and lazada.com.ph** — the extension only runs on those
-two sites, because those are the pages whose prices it annotates. It has no
-access to any other website, to your browsing history, to your tabs, or to your
-Shopee or Lazada account.
+**`activeTab`** — lets the "Scan this page" button work on a shop that is not in
+the list, for that one tab, only when you press it.
+
+**`scripting`** — the mechanism the button uses to run the extension's own
+bundled files in that tab. No code is downloaded or generated at runtime; the
+only thing it can run is the same `parse.js` and `content.js` that ship inside
+the extension.
+
+**Access to the listed shopping sites** — the extension only runs by itself on
+those sites, because those are the pages whose prices it annotates. It has no
+access to your browsing history, to your other tabs, or to any account you are
+signed in to.
 
 ## Accuracy
 

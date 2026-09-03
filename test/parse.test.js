@@ -1,6 +1,7 @@
 /* node test/parse.test.js  -  exits non-zero on first failure. */
 const assert = require('assert');
-const { parseQuantity, parsePrice, unitPrice, rank, plausible } = require('../parse.js');
+const { parseQuantity, parsePrice, parseMoney, toNumber, unitPrice, rank, plausible,
+  formatMoney } = require('../parse.js');
 
 let n = 0;
 function q(title, expect, why) {
@@ -31,6 +32,12 @@ q('Biogesic Paracetamol 500mg 10s', { dimension: 'count', amount: 10 },
 q('Joy Dishwashing Liquid 12 sachets', { dimension: 'count', amount: 12 });
 q('Tissue Paper 12 rolls', { dimension: 'count', amount: 12 });
 q('Pack of 24 Face Mask', { dimension: 'count', amount: 24 });
+q('Nespresso Capsules VertuoLine, 30 Count', { dimension: 'count', amount: 30 },
+  'US shelf shorthand');
+q('Starbucks Pike Place Ground Coffee, 12 oz Bag', { dimension: 'mass', amount: 340.19 });
+q('Cuisinart Coffee Maker 14 Cup Programmable Carafe', null, 'appliance capacity');
+q('Diamond Solitaire Ring 1.5ct White Gold', null,
+  'ct is carats on jewellery, so it is deliberately not a count unit');
 
 // Both found by the in-extension report button on a live shopee.ph search.
 q('Bear brand Powdered Milk drink 33g by 8', { dimension: 'mass', amount: 264 },
@@ -85,6 +92,10 @@ n++; assert.strictEqual(parsePrice(''), null);
 n++; assert.strictEqual(parsePrice('Top 10 Best Sellers'), null, 'listing furniture is not a price');
 n++; assert.strictEqual(parsePrice('Shop 500 items'), null, 'listing furniture is not a price');
 n++; assert.strictEqual(parsePrice('Sulit Deals 2026'), null);
+n++; assert.strictEqual(parsePrice('Canon Printer P1000 Ink Cartridge'), null,
+  'a bare P mid-text is a model number, not a peso price');
+n++; assert.strictEqual(parsePrice('P199 300g'), 199,
+  'a size in the same node must not be swallowed into the number');
 
 // --- unit price + the bundle trap ------------------------------------------
 n++;
@@ -105,6 +116,44 @@ n++;
   assert.strictEqual(r(23.33), 'plain', 'only 13% worse - not worth shaming');
   assert.strictEqual(r(45.0), 'worst', '2.2x the cheapest');
   assert.strictEqual(rank([12])(12), 'plain', 'a lone tile has nothing to compare to');
+}
+
+// --- localised numbers: getting this backwards is a 1000x error ------------
+n++; assert.strictEqual(toNumber('1,234.50'), 1234.5, 'US/PH grouping');
+n++; assert.strictEqual(toNumber('1.234,56'), 1234.56, 'EU/ID grouping');
+n++; assert.strictEqual(toNumber('1,234'), 1234, 'one separator + 3 digits = thousands');
+n++; assert.strictEqual(toNumber('1.234'), 1234, 'same, the other way round');
+n++; assert.strictEqual(toNumber('12,99'), 12.99, 'EU decimal comma');
+n++; assert.strictEqual(toNumber('0.50'), 0.5);
+n++; assert.strictEqual(toNumber('1,234,567'), 1234567);
+n++; assert.strictEqual(toNumber('1.234.567'), 1234567);
+n++; assert.strictEqual(toNumber('99'), 99);
+n++; assert.strictEqual(toNumber('1 234,56'), 1234.56, 'fr/pl/se space grouping');
+
+// --- currencies ------------------------------------------------------------
+const money = (t) => { const m = parseMoney(t); return m && `${m.symbol}${m.value}`; };
+n++; assert.strictEqual(money('₱1,234.50'), '₱1234.5');
+n++; assert.strictEqual(money('$24.99'), '$24.99', 'Amazon US');
+n++; assert.strictEqual(money('£12.50'), '£12.5');
+n++; assert.strictEqual(money('12,99 €'), '€12.99', 'symbol after the number');
+n++; assert.strictEqual(money('RM 45.90'), 'RM45.9', 'Shopee Malaysia');
+n++; assert.strictEqual(money('Rp 125.000'), 'Rp125000', 'Rupiah: dots are thousands');
+n++; assert.strictEqual(money('S$18.40'), 'S$18.4', 'S$ must beat a bare $');
+n++; assert.strictEqual(money('HK$250'), 'HK$250');
+n++; assert.strictEqual(money('₫250.000'), '₫250000');
+n++; assert.strictEqual(money('฿399'), '฿399');
+n++; assert.strictEqual(money('₹1,299'), '₹1299');
+n++; assert.strictEqual(money('1 234,56 €'), '€1234.56', 'space-grouped euros');
+n++; assert.strictEqual(parseMoney('Top 10 Best Sellers'), null, 'still not a price');
+n++; assert.strictEqual(parseMoney('Free Shipping'), null);
+n++; assert.strictEqual(formatMoney(24.99, '$'), '$24.99');
+n++; assert.strictEqual(formatMoney(1234.5, '£'), '£1,235');
+
+// A dollar page must badge in dollars, not pesos.
+n++;
+{
+  const up = unitPrice(24.99, parseQuantity('Coffee Beans 340g'), '$');
+  assert.strictEqual(up.text, '$7.35/100g');
 }
 
 // --- outlier suppression, from a live shopee.ph search --------------------

@@ -74,14 +74,41 @@ paracetamol — true, and useless.
 Neither reading is wrong; both produce correct arithmetic. Ship as-is, watch
 what people actually complain about, then pick. Do not guess this one.
 
+## What widening to ten retailers changed, and what it did not
+
+v1.2.0 runs on Amazon, eBay, Walmart, Temu and the rest, in whatever currency
+the page uses. That changes the addressable market and nothing about the plan
+above. The launch is still PH-first and TikTok-first, because that is the
+distribution edge that picked this idea over the other two; a Filipino
+extension that also works on Amazon is a better story than an American
+extension nobody in the US has a reason to hear about.
+
+The order stands: earn the first thousand installs on Shopee grocery videos,
+then cut one English demo on an Amazon coffee search for the store listing and
+for Reddit. Do not open a second front before the first gate is passed.
+
+One real consequence: US and UK grocery sites already print unit prices by law,
+so shoppers there have seen this idea. Amazon does not print them consistently
+on search grids, and marketplaces like Temu, Shein and AliExpress never do.
+Those are where the badge is worth something outside the Philippines, and where
+any English-language demo should be shot.
+
 ## Known risks worth watching
 
-**DOM churn.** Shopee and Lazada redeploy without notice. The selector-free
-climb should survive most redesigns, but not all. If badges vanish, run
+**Review risk on the wider host list.** Ten retailers means a long `matches`
+list, which draws more reviewer attention than two domains did. The mitigation
+is already in the package: no wildcard hosts, `activeTab` instead of broad
+access for everything else, and remote code declared as No. If the update is
+rejected, cut the host list to the five biggest and resubmit rather than
+arguing.
+
+**DOM churn.** Every one of these stores redeploys without notice, and now
+there are ten of them rather than two. The selector-free climb should survive
+most redesigns, but not all. If badges vanish, run
 `test/fixture.html` first to confirm the parser is fine, then look at the live
 DOM.
 
-**Title parsing on real listings.** The test set is 47 assertions of formats I
+**Title parsing on real listings.** The test set is 83 assertions of formats I
 could think of. Real Shopee titles are worse. Collect the misses: a listing
 that should badge and does not is a missing pattern; a listing that badges
 *wrongly* is urgent and should be fixed the same day, because that is what

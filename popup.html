@@ -44,6 +44,9 @@
   }
   button:hover { background: #eef2f6; }
   button:disabled { opacity: .5; cursor: default; }
+  #scan { background: #1f9d55; border-color: #1a854799; color: #fff; }
+  #scan:hover { background: #1c8c4c; }
+  .quiet { margin-top: 7px; font-weight: 500; }
   #msg { margin-top: 7px; font-size: 11px; color: #5d6772; min-height: 14px; }
   #kofi {
     display: block; margin-top: 10px; text-align: center;
@@ -66,7 +69,8 @@
 </style>
 
 <h1>Per Piece</h1>
-<p>Works on Shopee and Lazada Philippines.</p>
+<p>Runs by itself on Shopee, Lazada, Amazon, eBay, AliExpress, Temu, Shein,
+Walmart, Target and Flipkart. On any other shop, press Scan this page.</p>
 
 <div class="row">
   <label for="t">Show unit prices</label>
@@ -79,7 +83,8 @@
   <span class="chip w">₱45/100g</span>
 </div>
 
-<button id="report">Report a wrong or missing price</button>
+<button id="scan">Scan this page</button>
+<button id="report" class="quiet">Report a wrong or missing price</button>
 <div id="msg"></div>
 
 <a id="kofi" href="https://ko-fi.com/jju1s" target="_blank" rel="noopener noreferrer">

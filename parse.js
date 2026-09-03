@@ -35,6 +35,7 @@ const UNITS = {
     bar: 1, bars: 1, stick: 1, sticks: 1,
     pair: 1, pairs: 1, set: 1, sets: 1,
     box: 1, boxes: 1, bundle: 1, bundles: 1,
+    count: 1, counts: 1, cnt: 1,   // US shelf shorthand: "30 Count", "42 cnt"
     s: 1,            // PH retail shorthand: "Biogesic 10s" = 10 tablets
     dozen: 12, dozens: 12,
   },
@@ -76,7 +77,14 @@ const NAMED_PACK_N = { twin: 2, double: 2, triple: 3, quad: 4 };
 // a per-100ml badge on them is actively misleading. Verified against a probe
 // of real Shopee-style titles. "bottle" is deliberately NOT here - on grocery
 // searches it is far more often a drink ("Coke 1.5L bottle") than a flask.
-const CAPACITY_NOUN = new RegExp(String.raw`\b(?:cooker|fryer|blender|kettle|thermos|flask|tumbler|mug|jug|pitcher|carafe|dispenser|humidifier|diffuser|nebulizer|steamer|oven|toaster|crockpot|pot|pan|wok|casserole|tank|aquarium|backpack|bag|luggage|suitcase|cooler|chiller|freezer|refrigerator|ref|washer|washing\s+machine|vacuum|bucket|pail|basin|drum|canister|sprayer|watering|reservoir|container|tupperware|lunchbox|organizer|dumbbell|kettlebell|barbell|weighing\s+scale)\b`, 'i');
+const CAPACITY_NOUN = new RegExp(String.raw`\b(?:cooker|fryer|blender|kettle|thermos|flask|tumbler|mug|carafe|dispenser|humidifier|diffuser|nebulizer|steamer|oven|toaster|crockpot|pot|pan|wok|casserole|tank|aquarium|backpack|luggage|suitcase|cooler|chiller|freezer|refrigerator|ref|washer|washing\s+machine|vacuum|sprayer|watering|reservoir|lunchbox|organizer|dumbbell|kettlebell|barbell|weighing\s+scale)\b`, 'i');
+
+// Sold both ways, so the noun alone cannot decide. A "30L bag" is luggage
+// capacity; a "12 oz bag" of coffee is a package size. Bags, buckets and
+// canisters state their capacity in litres and their contents in grams or
+// ounces, so the dimension is the discriminator - veto volume only. Juice
+// cartons keep "box" out of this list, and drinks keep "bottle" out.
+const VESSEL_NOUN = /\b(?:bag|sack|bucket|pail|basin|drum|canister|container|tupperware|jug|pitcher)\b/i;
 
 // Any single "<number><unit>" occurrence.
 const SINGLE = new RegExp(
@@ -138,6 +146,13 @@ function scanSingles(t) {
  * Returns { dimension, amount, unit } in base units, or null when unsure.
  */
 function parseQuantity(title) {
+  const r = readQuantity(title);
+  if (!r) return null;
+  if (r.dimension === 'volume' && VESSEL_NOUN.test(title.toLowerCase())) return null;
+  return r;
+}
+
+function readQuantity(title) {
   if (!title || typeof title !== 'string') return null;
   const t = title.toLowerCase();
 
@@ -195,24 +210,96 @@ function parseQuantity(title) {
   return make(pool[0].dim, pool[0].value * packMult);
 }
 
-// "₱1,234.50", "P1234", "PHP 1,234" -> 1234.5
-// A bare "p" must sit on a word boundary AND touch its digits, or listing
-// furniture like "Top 10" and "Shop 500" parses as a price.
-const PRICE_RE = /(?:₱\s*|\bphp\s*|\bp(?=\d))([\d][\d,]*(?:\.\d{1,2})?)/i;
+// --- money -----------------------------------------------------------------
+// Symbol or ISO code -> what we print back. Longest match wins, so "S$" and
+// "HK$" are tried before a bare "$".
+const CURRENCY = {
+  '₱': '₱', php: '₱',
+  'hk$': 'HK$', hkd: 'HK$', 'nt$': 'NT$', twd: 'NT$',
+  's$': 'S$', sgd: 'S$', 'a$': 'A$', aud: 'A$', 'c$': 'C$', cad: 'C$',
+  'r$': 'R$', brl: 'R$', 'nz$': 'NZ$', nzd: 'NZ$',
+  $: '$', usd: '$', mxn: 'MX$',
+  '£': '£', gbp: '£', '€': '€', eur: '€',
+  '¥': '¥', jpy: '¥', cny: '¥', rmb: '¥',
+  '₹': '₹', inr: '₹', '₩': '₩', krw: '₩',
+  '฿': '฿', thb: '฿', '₫': '₫', vnd: '₫',
+  rp: 'Rp', idr: 'Rp', rm: 'RM', myr: 'RM',
+  chf: 'CHF', aed: 'AED', sar: 'SAR', zar: 'R',
+  'zł': 'zł', pln: 'zł', 'kč': 'Kč', czk: 'Kč',
+  kr: 'kr', sek: 'kr', nok: 'kr', dkk: 'kr',
+};
 
-function parsePrice(text) {
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const SYMS = Object.keys(CURRENCY).sort((a, b) => b.length - a.length).map(esc).join('|');
+
+// Digits with any mix of thousands and decimal separators. The first branch
+// is space-grouped money ("1 234,56" on fr/pl/se pages); its lookahead stops
+// it eating a pack size that sits in the same node, as in "P199 300g".
+const SP = String.raw`[   ]`;
+const NUM = String.raw`\d{1,3}(?:${SP}\d{3})+(?:[.,]\d{1,2})?(?!\s*[a-z])|\d[\d.,]*\d|\d`;
+
+// Symbol before the number is the common case; "12,99 €" puts it after.
+// A bare "P" for pesos is only trusted when the text STARTS with it. Anywhere
+// else it is far more often a model number - "Canon Printer P1000 Ink 30ml"
+// would otherwise badge as ₱3333/100ml - and listing furniture like
+// "Top 10" or "Shop 500" would read as a price too.
+const PRICE_RE = new RegExp(
+  String.raw`(?:(${SYMS})\s*(${NUM}))|(?:(${NUM})\s*(${SYMS})(?![a-z]))|(?:^\s*p(?=\d)(${NUM}))`, 'i');
+
+/** Cheap prefilter for the DOM side: does this text contain a price at all? */
+const hasMoney = (t) => !!t && PRICE_RE.test(t);
+
+/**
+ * Turn a localised number into a Number.
+ * "1,234.50" and "1.234,56" are both 1234.5-ish; "1,234" and "1.234" are both
+ * 1234. Getting this backwards is a 1000x error, so the rule is explicit:
+ * the LAST separator is the decimal point, unless there is exactly one
+ * separator followed by exactly three digits, which is a thousands group.
+ */
+function toNumber(raw) {
+  let s = String(raw).replace(/[\s  ]/g, '');
+  const dots = (s.match(/\./g) || []).length;
+  const coms = (s.match(/,/g) || []).length;
+  const split = (at) => s.slice(0, at).replace(/[.,]/g, '') + '.' + s.slice(at + 1);
+
+  if (dots && coms) {
+    // Both appear, so the later one is the decimal point.
+    s = split(Math.max(s.lastIndexOf('.'), s.lastIndexOf(',')));
+  } else if (dots + coms > 1) {
+    // The same separator repeated is always grouping: "1,234,567".
+    s = s.replace(/[.,]/g, '');
+  } else if (dots + coms === 1) {
+    const at = Math.max(s.lastIndexOf('.'), s.lastIndexOf(','));
+    // Exactly three trailing digits reads as a thousands group, which is the
+    // right call for prices: "Rp 125.000" is 125000, not 125.
+    s = (s.length - at - 1) === 3 ? s.replace(/[.,]/g, '') : split(at);
+  }
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** { value, symbol } for the first price in the text, or null. */
+function parseMoney(text) {
   if (!text) return null;
   const m = String(text).match(PRICE_RE);
   if (!m) return null;
-  const n = parseFloat(m[1].replace(/,/g, ''));
-  return Number.isFinite(n) && n > 0 ? n : null;
+  const sym = (m[1] || m[4] || '₱').toLowerCase();
+  const n = toNumber(m[2] || m[3] || m[5]);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return { value: n, symbol: CURRENCY[sym] || '₱' };
+}
+
+/** Back-compat numeric form, used by the tests and the ranking maths. */
+function parsePrice(text) {
+  const m = parseMoney(text);
+  return m ? m.value : null;
 }
 
 /**
  * Unit price for a tile. Returns { value, label, text, dimension } or null.
  * `value` is comparable only against the same `dimension`.
  */
-function unitPrice(price, qty) {
+function unitPrice(price, qty, symbol) {
   if (!price || !qty) return null;
   const d = DISPLAY[qty.dimension];
   const value = (price / qty.amount) * d.per;
@@ -221,13 +308,19 @@ function unitPrice(price, qty) {
     value,
     dimension: qty.dimension,
     label: d.label,
-    text: `${formatPeso(value)}/${d.label}`,
+    text: `${formatMoney(value, symbol || '₱')}/${d.label}`,
   };
 }
 
-function formatPeso(v) {
-  const decimals = v < 10 ? 2 : v < 1000 ? 1 : 0;
-  return '₱' + v.toFixed(decimals).replace(/\.0+$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+function formatMoney(v, symbol) {
+  // Currency-agnostic: keep two decimals while the number is small enough for
+  // them to matter. A peso rule of 'two decimals under 10' would print $25
+  // for a $24.99 item on Amazon.
+  const decimals = v < 100 ? 2 : v < 1000 ? 1 : 0;
+  const n = v.toFixed(decimals).replace(/\.0+$/, '');
+  const [whole, frac] = n.split('.');
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (symbol || '₱') + grouped + (frac ? '.' + frac : '');
 }
 
 /**
@@ -274,5 +367,8 @@ function rank(values) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { parseQuantity, parsePrice, unitPrice, rank, plausible, formatPeso };
+  module.exports = {
+    parseQuantity, parsePrice, parseMoney, toNumber, hasMoney,
+    unitPrice, rank, plausible, formatMoney,
+  };
 }

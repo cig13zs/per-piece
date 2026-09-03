@@ -1,13 +1,26 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>Per Piece - fixture</title>
-<!-- Mimics a Shopee PH search grid: obfuscated class names, the peso sign
-     split into its own span, struck-through original prices, tiles nested
-     several levels deep. Open in a browser to verify content.js end to end. -->
+<!-- Two adversarial grids in one page.
+
+     Top: a Shopee PH search - obfuscated class names, the peso sign split into
+     its own span, struck-through original prices before AND after the current
+     one, tiles nested several levels deep.
+
+     Bottom: an Amazon US search - the real .a-price shape, where the accurate
+     price lives in a visually hidden .a-offscreen span and the visible one is
+     split into symbol / whole / fraction spans that read "$2499" if you
+     concatenate them naively.
+
+     Both grids on one page also prove the ranking is grouped by currency: the
+     dollar tiles must never be ranked against the peso tiles, and no badge may
+     ever print the wrong symbol. Open in a browser to verify content.js end to
+     end. -->
 <link rel="stylesheet" href="../content.css">
 <style>
   body { font: 14px system-ui, sans-serif; background: #f6f6f6; margin: 0; padding: 18px; }
-  h2 { font-size: 15px; margin: 0 0 14px; color: #333; }
+  h2 { font-size: 15px; margin: 22px 0 14px; color: #333; }
+  h2:first-of-type { margin-top: 0; }
   .r7Kx { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .Jq2p { background: #fff; border-radius: 6px; overflow: hidden; }
   .m9Vc { padding: 9px; }
@@ -15,10 +28,23 @@
   .p1Zk { margin-top: 6px; color: #ee4d2d; font-weight: 700; font-size: 15px; }
   .o8Bn { color: #999; font-size: 11.5px; text-decoration: line-through; margin-left: 5px; font-weight: 400; }
   .img { height: 92px; background: linear-gradient(135deg,#e8e8e8,#d6d6d6); }
+
+  /* Amazon's own markup, near enough. */
+  .a-offscreen { position: absolute; width: 1px; height: 1px; overflow: hidden;
+                 clip: rect(0 0 0 0); white-space: nowrap; }
+  .a-price { color: #0f1111; font-weight: 400; }
+  .a-price-symbol { font-size: 11px; vertical-align: super; }
+  .a-price-whole { font-size: 20px; }
+  .a-price-fraction { font-size: 11px; vertical-align: super; }
+  .a-text-price { color: #565959; font-size: 12px; text-decoration: line-through; }
+  .a-title { font-size: 13px; line-height: 1.35; height: 54px; overflow: hidden; color: #0f1111; }
 </style>
 
-<h2>gatas / powdered milk &mdash; 9 results</h2>
+<h2>gatas / powdered milk &mdash; shopee.ph</h2>
 <div class="r7Kx" id="grid"></div>
+
+<h2>coffee &mdash; amazon.com</h2>
+<div class="r7Kx" id="amz"></div>
 
 <script>
 const ITEMS = [
@@ -32,7 +58,7 @@ const ITEMS = [
   ['iPhone 15 Pro Max 256GB Natural Titanium', 71990, 0],
   ['Backpack 30L Waterproof Travel Laptop Bag', 899, 1299],
   // Lazada-style: struck original rendered BEFORE the current price. Must read
-  // 148, not 260 -> ₱29.6/100g. Reading the struck value would badge ₱52/100g.
+  // 148, not 260 -> P29.6/100g. Reading the struck value would badge P52/100g.
   ['Milo Activ-Go Chocolate Powder 500g', 148, 260, 'first'],
 ];
 
@@ -46,15 +72,44 @@ document.getElementById('grid').innerHTML = ITEMS.map(([t, p, o, where]) => `
     <div class="p1Zk">${where === 'first' ? old(o) : ''}<span>₱</span><span>${
       peso(p)}</span>${where === 'first' ? '' : old(o)}</div>
   </div></div>`).join('');
+
+// [title, price, was]. The three coffee bags are the whole demo: the biggest
+// bag is not the cheapest per 100g.
+const AMZ = [
+  ['Starbucks Pike Place Roast Ground Coffee, 12 oz Bag', 8.48, 0],
+  ['Death Wish Coffee Ground Coffee, 16 oz', 19.99, 24.99],
+  ['Community Coffee Cafe Special Ground Coffee 32 oz', 24.99, 0],
+  ['Folgers Classic Roast Ground Coffee, 43.5 Ounce', 12.38, 0],
+  ['Nespresso Capsules VertuoLine, 30 Count', 41.7, 0],
+  ['Keurig K-Cup Pods Variety Pack of 42', 29.99, 34.99],
+  // Must stay blank: a machine's capacity is not what you drink.
+  ['Cuisinart Coffee Maker 14 Cup Programmable Carafe', 79.95, 0],
+  ['Ninja Air Fryer 4L Digital Countertop', 119.99, 0],
+];
+
+document.getElementById('amz').innerHTML = AMZ.map(([t, p, o]) => {
+  const [w, f] = p.toFixed(2).split('.');
+  return `
+  <div class="Jq2p"><div class="img"></div><div class="m9Vc">
+    <div class="a-title">${t}</div>
+    <div style="margin-top:6px">
+      <span class="a-price"><span class="a-offscreen">$${p.toFixed(2)}</span><span
+        aria-hidden="true"><span class="a-price-symbol">$</span><span
+        class="a-price-whole">${w}</span><span class="a-price-fraction">${f}</span></span></span>
+      ${o ? `<span class="a-text-price">List: $${o.toFixed(2)}</span>` : ''}
+    </div>
+  </div></div>`;
+}).join('');
 </script>
 
-<!-- Minimal chrome.storage shim so the real content script runs unmodified. -->
+<!-- Minimal chrome API shim so the real content script runs unmodified. -->
 <script>
 window.chrome = {
   storage: {
     local: { get: (d, cb) => cb(d), set: () => {} },
     onChanged: { addListener: () => {} },
   },
+  runtime: { onMessage: { addListener: () => {} } },
 };
 </script>
 <script src="../parse.js"></script>

@@ -7,11 +7,14 @@
  * ancestor is the product tile on any layout.
  */
 (() => {
+  // The popup can inject this file into any tab via activeTab. On a site we
+  // already declare the script is here, so just rescan instead of running a
+  // second copy - re-injecting parse.js would throw on its top-level consts.
+  if (window.__perPieceScan) { window.__perPieceScan(); return; }
+
   const MARK = 'data-pp';            // tile already processed
   const BADGE = 'pp-badge';
-  const MAX_CLIMB = 12;
-  // Kept in step with PRICE_RE in parse.js - see the note there on bare "p".
-  const PRICE_TEXT = /(?:₱\s*|\bphp\s*|\bp(?=\d))[\d][\d,]*(?:\.\d{1,2})?/i;
+  const MAX_CLIMB = 14;              // deep enough for Amazon and eBay tiles
 
   let enabled = true;
   let timer = null;
@@ -37,6 +40,14 @@
     return r;
   }
 
+  // Amazon, Walmart and Target print every price twice: once for screen
+  // readers and once for eyes, with the visual copy marked aria-hidden and
+  // split into symbol / whole / fraction spans that concatenate to "$848".
+  // Counting both makes a tile look like it holds two products, so the climb
+  // stops dead and nothing is badged. The accessible copy is also the only one
+  // with the decimal point in it, so it is the copy worth reading.
+  const HIDDEN = `[aria-hidden="true"], .${BADGE}`;
+
   // Text a shopper actually pays, ignoring struck-out "original" prices and
   // our own badges. Both stores render the old price as a line-through sibling
   // of the current one, sometimes BEFORE it - reading raw textContent would
@@ -47,7 +58,7 @@
     let n;
     while ((n = w.nextNode())) {
       const p = n.parentElement;
-      if (!p || struck(p) || p.closest(`.${BADGE}`)) continue;
+      if (!p || struck(p) || p.closest(HIDDEN)) continue;
       out += n.nodeValue;
     }
     return out;
@@ -57,15 +68,15 @@
   // tree walk. Keeps a full-page scan linear on a 60-tile grid.
   const maybePrice = (el) => {
     const t = el.textContent;
-    return !!t && t.length <= 48 && PRICE_TEXT.test(t);
+    return !!t && t.length <= 48 && hasMoney(t);
   };
 
   function isPriceLeaf(el) {
     if (isOurs(el) || el.closest(`.${BADGE}`) || !maybePrice(el)) return false;
     const vt = visibleText(el);
-    if (!vt || vt.length > 40 || !PRICE_TEXT.test(vt)) return false;
+    if (!vt || vt.length > 40 || !hasMoney(vt)) return false;
     for (const c of el.children) {
-      if (maybePrice(c) && PRICE_TEXT.test(visibleText(c))) return false;
+      if (maybePrice(c) && hasMoney(visibleText(c))) return false;
     }
     return true;
   }
@@ -81,6 +92,19 @@
     for (const c of el.querySelectorAll('*')) if (isPriceLeaf(c)) n++;
     return n;
   };
+
+  // The price we can READ is not always the price the shopper SEES. Amazon's
+  // accessible copy is a 1px clipped span sitting at the START of the price
+  // block, so hanging the badge off it prints "$2.49/100g $8.48" - backwards.
+  // Anchor to the nearest ancestor that actually occupies space instead.
+  function anchorFor(el) {
+    for (let i = 0; i < 3 && el.parentElement; i++) {
+      const r = el.getBoundingClientRect();
+      if (r.width >= 8 && r.height >= 8) break;
+      el = el.parentElement;
+    }
+    return el;
+  }
 
   // Climb while the ancestor still describes a single product.
   function tileOf(priceEl) {
@@ -102,17 +126,9 @@
     while ((n = w.nextNode())) {
       if (n.parentElement && n.parentElement.closest(`.${BADGE}`)) continue;
       const t = n.nodeValue.trim();
-      if (t.length > best.length && !PRICE_TEXT.test(t)) best = t;
+      if (t.length > best.length && !hasMoney(t)) best = t;
     }
     return best.length >= 8 ? best : '';
-  }
-
-  function badgeFor(tile, priceEl) {
-    const price = parsePrice(visibleText(priceEl));
-    if (!price) return null;
-    const qty = parseQuantity(titleOf(tile));
-    if (!qty) return null;
-    return unitPrice(price, qty);
   }
 
   function clearTile(tile) {
@@ -142,18 +158,20 @@
       if (seen.has(tile)) continue;
       seen.add(tile);
 
-      const price = parsePrice(visibleText(pe));
-      if (!price) continue;
+      const money = parseMoney(visibleText(pe));
+      if (!money) continue;
       const title = titleOf(tile);
-      const up = unitPrice(price, parseQuantity(title));
+      const up = unitPrice(money.value, parseQuantity(title), money.symbol);
+      const price = formatMoney(money.value, money.symbol);
 
-      if (up) found.push({ tile, priceEl: pe, up, title, price });
+      if (up) found.push({ tile, priceEl: pe, up, title, price, sym: money.symbol });
       else if (title) report.miss.push({ title, price });
     }
 
-    // Rank within each dimension - comparing ₱/100g against ₱/pc is meaningless.
+    // Rank within one dimension AND one currency. ₱/100g against ₱/pc is
+    // meaningless, and so is $/100g against ₱/100g on a page showing both.
     const byDim = {};
-    for (const f of found) (byDim[f.up.dimension] ||= []).push(f);
+    for (const f of found) (byDim[`${f.up.dimension}|${f.sym}`] ||= []).push(f);
 
     for (const dim of Object.keys(byDim)) {
       const all = byDim[dim];
@@ -186,7 +204,7 @@
         el.textContent = f.up.text;
         if (cls === 'best') el.textContent += ' ✓ best';
         if (cls === 'worst') el.title = 'Costs more per unit than the cheapest option on this page';
-        f.priceEl.insertAdjacentElement('afterend', el);
+        anchorFor(f.priceEl).insertAdjacentElement('afterend', el);
 
         if (cls !== 'plain') f.tile.classList.add(`pp-${cls}`);
         f.tile.setAttribute(MARK, key);
@@ -215,6 +233,9 @@
     clearTimeout(timer);
     timer = setTimeout(scan, 350);
   };
+
+  // Re-entry point for the popup's "Scan this page" button.
+  window.__perPieceScan = schedule;
 
   chrome.storage.local.get({ enabled: true }, (s) => {
     enabled = s.enabled;
