@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Per Piece - fixture</title>
+<!-- Mimics a Shopee PH search grid: obfuscated class names, the peso sign
+     split into its own span, struck-through original prices, tiles nested
+     several levels deep. Open in a browser to verify content.js end to end. -->
+<link rel="stylesheet" href="../content.css">
+<style>
+  body { font: 14px system-ui, sans-serif; background: #f6f6f6; margin: 0; padding: 18px; }
+  h2 { font-size: 15px; margin: 0 0 14px; color: #333; }
+  .r7Kx { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .Jq2p { background: #fff; border-radius: 6px; overflow: hidden; }
+  .m9Vc { padding: 9px; }
+  .t3Wd { font-size: 12.5px; line-height: 1.35; height: 52px; overflow: hidden; color: #222; }
+  .p1Zk { margin-top: 6px; color: #ee4d2d; font-weight: 700; font-size: 15px; }
+  .o8Bn { color: #999; font-size: 11.5px; text-decoration: line-through; margin-left: 5px; font-weight: 400; }
+  .img { height: 92px; background: linear-gradient(135deg,#e8e8e8,#d6d6d6); }
+</style>
+
+<h2>gatas / powdered milk &mdash; 9 results</h2>
+<div class="r7Kx" id="grid"></div>
+
+<script>
+const ITEMS = [
+  ['Bear Brand Powdered Milk 300g', 62, 0],
+  ['Bear Brand Powdered Milk 300g x 6 BUNDLE SALE PROMO', 560, 720],
+  ['Alaska Fortified Powdered Milk 1.2kg', 310, 0],
+  ['Nido Fortigrow Full Cream Milk Powder 700g', 189, 240],
+  ['Anchor Full Cream Milk Powder 900g Twin Pack', 495, 0],
+  ['Biogesic Paracetamol 500mg 10s', 52, 0],
+  ['Biogesic Paracetamol 500mg 100s Bottle', 420, 0],
+  ['iPhone 15 Pro Max 256GB Natural Titanium', 71990, 0],
+  ['Backpack 30L Waterproof Travel Laptop Bag', 899, 1299],
+  // Lazada-style: struck original rendered BEFORE the current price. Must read
+  // 148, not 260 -> ₱29.6/100g. Reading the struck value would badge ₱52/100g.
+  ['Milo Activ-Go Chocolate Powder 500g', 148, 260, 'first'],
+];
+
+const peso = (n) => n.toLocaleString('en-PH', { minimumFractionDigits: n % 1 ? 2 : 0 });
+
+const old = (o) => (o ? `<span class="o8Bn">₱${peso(o)}</span>` : '');
+
+document.getElementById('grid').innerHTML = ITEMS.map(([t, p, o, where]) => `
+  <div class="Jq2p"><div class="img"></div><div class="m9Vc">
+    <div class="t3Wd">${t}</div>
+    <div class="p1Zk">${where === 'first' ? old(o) : ''}<span>₱</span><span>${
+      peso(p)}</span>${where === 'first' ? '' : old(o)}</div>
+  </div></div>`).join('');
+</script>
+
+<!-- Minimal chrome.storage shim so the real content script runs unmodified. -->
+<script>
+window.chrome = {
+  storage: {
+    local: { get: (d, cb) => cb(d), set: () => {} },
+    onChanged: { addListener: () => {} },
+  },
+};
+</script>
+<script src="../parse.js"></script>
+<script src="../content.js"></script>

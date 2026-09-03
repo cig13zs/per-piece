@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Per Piece - Real Price Per Unit",
+  "version": "1.0.0",
+  "description": "Shows the real price per 100g, 100ml or per piece while you shop, so you can see which bundle is actually cheaper.",
+
+  "permissions": ["storage"],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://shopee.ph/*",
+        "https://*.shopee.ph/*",
+        "https://www.lazada.com.ph/*",
+        "https://*.lazada.com.ph/*"
+      ],
+      "js": ["parse.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_title": "Per Piece",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

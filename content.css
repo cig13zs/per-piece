@@ -1,0 +1,61 @@
+/* Per Piece - badge styling.
+ * Every property is set explicitly: these chips land inside Shopee's and
+ * Lazada's own cascade and must not inherit their fonts, colours or spacing.
+ */
+
+.pp-badge {
+  display: inline-block !important;
+  margin: 3px 0 0 !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid transparent !important;
+  font: 600 11px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  letter-spacing: .1px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  box-sizing: border-box !important;
+  max-width: none !important;
+  pointer-events: auto !important;
+}
+
+.pp-plain {
+  background: #eef1f4 !important;
+  border-color: #d8dee5 !important;
+  color: #3d4752 !important;
+}
+
+.pp-best {
+  background: #e3f7ea !important;
+  border-color: #7ed39b !important;
+  color: #14663a !important;
+}
+
+.pp-worst {
+  background: #fdeaea !important;
+  border-color: #f0a3a3 !important;
+  color: #a11a1a !important;
+}
+
+/* Ring the tile itself so a whole grid reads at a glance. */
+.pp-best.pp-best,
+.pp-worst.pp-worst {
+  border-radius: 6px;
+}
+
+[data-pp].pp-best {
+  outline: 2px solid rgba(46, 168, 100, .55) !important;
+  outline-offset: 1px !important;
+}
+
+[data-pp].pp-worst {
+  outline: 2px solid rgba(214, 78, 78, .5) !important;
+  outline-offset: 1px !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pp-plain { background: #2a3038 !important; border-color: #3c444e !important; color: #cbd3dc !important; }
+  .pp-best  { background: #14331f !important; border-color: #2f7a4d !important; color: #7fe0a6 !important; }
+  .pp-worst { background: #3a1a1a !important; border-color: #8a3838 !important; color: #ff9c9c !important; }
+}
