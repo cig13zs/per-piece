@@ -6,3 +6,4 @@ Thumbs.db
 # MCP server state written into the working directory
 .easyeda-mcp-pro/
 ltspice-mcp.toml
+__pycache__/

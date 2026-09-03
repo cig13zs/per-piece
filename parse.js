@@ -56,11 +56,13 @@ const UNIT_ALT = ALL_UNITS.join('|');
 // like "Nescafe 3 in 1 28g x 10" and "Powerbank 20000mAh 2pcs".
 
 // Explicit multipack forms, checked before the single-quantity scan.
-// "500g x 3", "500 g*3", "3 x 500g", "3x500 ml"
+// "500g x 3", "500 g*3", "3 x 500g", "3x500 ml", and the spelled-out "33g by 8"
+// seen on real Shopee listings.
+const MULT = String.raw`(?:[x×*]|\bby\b)`;
 const MULT_QTY_FIRST = new RegExp(
-  String.raw`(\d+(?:[.,]\d+)?)\s*(${UNIT_ALT})(?![a-z])\s*[x×*]\s*(\d{1,4})(?![\d.])`, 'i');
+  String.raw`(\d+(?:[.,]\d+)?)\s*(${UNIT_ALT})(?![a-z])\s*${MULT}\s*(\d{1,4})(?![\d.])`, 'i');
 const MULT_COUNT_FIRST = new RegExp(
-  String.raw`(\d{1,4})\s*[x×*]\s*(\d+(?:[.,]\d+)?)\s*(${UNIT_ALT})(?![a-z])`, 'i');
+  String.raw`(\d{1,4})\s*${MULT}\s*(\d+(?:[.,]\d+)?)\s*(${UNIT_ALT})(?![a-z])`, 'i');
 
 // "pack of 12", "set of 3", "box of 24"
 const PACK_OF = /\b(?:pack|packs|set|sets|box|boxes|bundle|case)\s+of\s+(\d{1,4})\b/i;
@@ -114,6 +116,23 @@ function make(dim, value) {
   return { dimension: dim, amount: value, unit: BASE_LABEL[dim] };
 }
 
+// Every plausible "<number><unit>" in the title, in base units.
+function scanSingles(t) {
+  const hits = [];
+  SINGLE.lastIndex = 0;
+  let s;
+  while ((s = SINGLE.exec(t)) !== null) {
+    const unit = s[2];
+    const dim = UNIT_DIM[unit];
+    const value = num(s[1]) * UNITS[dim][unit];
+    if (value == null || !inRange(dim, value)) continue;
+    // Bare "s" only counts glued to its number ("10s"), never "10 s".
+    if (unit === 's' && !/^\d+s$/.test(s[0].replace(/\s+/g, ''))) continue;
+    hits.push({ dim, value, unit });
+  }
+  return hits;
+}
+
 /**
  * Extract total package quantity from a product title.
  * Returns { dimension, amount, unit } in base units, or null when unsure.
@@ -140,26 +159,22 @@ function parseQuantity(title) {
   }
 
   m = t.match(PACK_OF);
-  if (m) return make('count', parseInt(m[1], 10));
+  if (m) {
+    const n = parseInt(m[1], 10);
+    // "300g - Pack of 2" is 600 g. A pack count always means whole packages,
+    // so multiplying is safe here in a way it is not for a per-dose size like
+    // "500mg 10s", and it keeps the tile comparable with the rest of the page.
+    const sizes = scanSingles(t).filter((h) => h.dim !== 'count');
+    if (sizes.length === 1) return make(sizes[0].dim, sizes[0].value * n);
+    return make('count', n);
+  }
 
   // "Colgate 150g Twin Pack" is 300 g, not 150 g.
   const named = t.match(NAMED_PACK);
   const packMult = named ? NAMED_PACK_N[named[1].toLowerCase()] : 1;
 
   // Single quantities. Collect them all so we can detect ambiguity.
-  const hits = [];
-  SINGLE.lastIndex = 0;
-  let s;
-  while ((s = SINGLE.exec(t)) !== null) {
-    const unit = s[2];
-    const dim = UNIT_DIM[unit];
-    const value = num(s[1]) * UNITS[dim][unit];
-    if (value == null || !inRange(dim, value)) continue;
-    // Bare "s" only counts glued to its number ("10s"), never "10 s".
-    if (unit === 's' && !/^\d+s$/.test(s[0].replace(/\s+/g, ''))) continue;
-    hits.push({ dim, value, unit });
-  }
-
+  const hits = scanSingles(t);
   if (hits.length === 0) return null;
 
   // When a size AND a count both appear with no multiplier joining them

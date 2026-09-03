@@ -45,10 +45,16 @@
   button:hover { background: #eef2f6; }
   button:disabled { opacity: .5; cursor: default; }
   #msg { margin-top: 7px; font-size: 11px; color: #5d6772; min-height: 14px; }
+  #kofi {
+    display: block; margin-top: 10px; text-align: center;
+    font-size: 11.5px; font-weight: 600; color: #1f7a52; text-decoration: none;
+  }
+  #kofi:hover { text-decoration: underline; }
   @media (prefers-color-scheme: dark) {
     button { background: #222831; border-color: #39414b; color: #dfe6ed; }
     button:hover { background: #2a323c; }
     #msg { color: #98a2ad; }
+    #kofi { color: #6bd39b; }
   }
   @media (prefers-color-scheme: dark) {
     body { background: #171b20; color: #e6eaef; }
@@ -75,6 +81,9 @@
 
 <button id="report">Report a wrong or missing price</button>
 <div id="msg"></div>
+
+<a id="kofi" href="https://ko-fi.com/jju1s" target="_blank" rel="noopener noreferrer">
+  Free forever. Buy me a coffee ☕</a>
 
 <p class="foot">Nothing is collected or sent anywhere. All the maths runs on this
 device. A tile stays blank when the size cannot be read with confidence.

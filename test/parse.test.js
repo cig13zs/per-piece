@@ -31,6 +31,13 @@ q('Biogesic Paracetamol 500mg 10s', { dimension: 'count', amount: 10 },
 q('Joy Dishwashing Liquid 12 sachets', { dimension: 'count', amount: 12 });
 q('Tissue Paper 12 rolls', { dimension: 'count', amount: 12 });
 q('Pack of 24 Face Mask', { dimension: 'count', amount: 24 });
+
+// Both found by the in-extension report button on a live shopee.ph search.
+q('Bear brand Powdered Milk drink 33g by 8', { dimension: 'mass', amount: 264 },
+  '"by" is a multiplier just like x');
+q('Bear Brand Fortified Choco Powdered Milk Drink 300g - Pack of 2',
+  { dimension: 'mass', amount: 600 },
+  'a pack count means whole packages, so it multiplies the size');
 q('Eggs 1 dozen fresh', { dimension: 'count', amount: 12 });
 
 // --- multipacks, both orders (this is the viral case) ----------------------
