@@ -110,6 +110,12 @@
     return unitPrice(price, qty);
   }
 
+  function clearTile(tile) {
+    tile.querySelectorAll(`.${BADGE}`).forEach((b) => b.remove());
+    tile.classList.remove('pp-best', 'pp-worst');
+    tile.removeAttribute(MARK);
+  }
+
   function clear() {
     for (const b of document.querySelectorAll(`.${BADGE}`)) b.remove();
     for (const t of document.querySelectorAll(`[${MARK}]`)) {
@@ -137,7 +143,17 @@
     for (const f of found) (byDim[f.up.dimension] ||= []).push(f);
 
     for (const dim of Object.keys(byDim)) {
-      const group = byDim[dim];
+      const all = byDim[dim];
+
+      // Drop listings whose stated size clearly does not match what is sold,
+      // before ranking - otherwise one bad tile defines "best" for the page.
+      const believable = plausible(all.map((f) => f.up.value));
+      const group = [];
+      for (const f of all) {
+        if (believable(f.up.value)) group.push(f);
+        else clearTile(f.tile);
+      }
+
       const grade = rank(group.map((f) => f.up.value));
 
       for (const f of group) {

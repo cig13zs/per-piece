@@ -58,6 +58,22 @@ and write down why.
 Prewritten kill conditions: a Chrome Web Store policy strike, a trademark
 complaint from either marketplace, or both gates failing.
 
+## Open tuning question (decide with real feedback, not a guess)
+
+On a live `bear brand powdered milk` search the page came back split: five tiles
+in ₱/100g and four in ₱/pc. That happens when a title carries only a size
+("300g") versus only a count, and it makes cross-tile comparison harder than it
+should be — the whole pitch is one glance.
+
+The alternative is to multiply size by count whenever both appear, so
+"33g" plus a count of 16 becomes 528 g and reads ₱40.7/100g, directly
+comparable to the 300 g packs. That was tried and deliberately not shipped,
+because the same rule turns "Biogesic 500mg 10s" into ₱1,040/100g of
+paracetamol — true, and useless.
+
+Neither reading is wrong; both produce correct arithmetic. Ship as-is, watch
+what people actually complain about, then pick. Do not guess this one.
+
 ## Known risks worth watching
 
 **DOM churn.** Shopee and Lazada redeploy without notice. The selector-free

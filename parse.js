@@ -221,6 +221,31 @@ function formatPeso(v) {
  */
 const WORST_RATIO = 1.5;
 
+// Some listings state a size that does not cover what is actually being sold:
+// a photo of ten sachets titled only "33g". Nothing in the text can reveal
+// that, and the result is a unit price wildly out of line with the rest of the
+// page. Caught on a live Shopee search - one tile read ₱378.8/100g against a
+// page median around ₱43. Those are listing lies rather than bargains, and a
+// badge nine times off is exactly the kind of wrong that earns a one-star
+// review, so drop them instead. Needs a real sample before the median means
+// anything.
+const OUTLIER = 4;
+const MIN_SAMPLE = 4;
+
+function median(sorted) {
+  const n = sorted.length;
+  return n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+}
+
+/** Predicate: is this unit price believable next to the rest of the page? */
+function plausible(values) {
+  const f = values.filter(Number.isFinite).sort((a, b) => a - b);
+  if (f.length < MIN_SAMPLE) return () => true;
+  const mid = median(f);
+  if (!(mid > 0)) return () => true;
+  return (v) => Number.isFinite(v) && v <= mid * OUTLIER && v >= mid / OUTLIER;
+}
+
 function rank(values) {
   const finite = values.filter((v) => Number.isFinite(v));
   if (finite.length < 2) return () => 'plain';
@@ -234,5 +259,5 @@ function rank(values) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { parseQuantity, parsePrice, unitPrice, rank, formatPeso };
+  module.exports = { parseQuantity, parsePrice, unitPrice, rank, plausible, formatPeso };
 }

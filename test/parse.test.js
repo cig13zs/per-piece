@@ -1,6 +1,6 @@
 /* node test/parse.test.js  -  exits non-zero on first failure. */
 const assert = require('assert');
-const { parseQuantity, parsePrice, unitPrice, rank } = require('../parse.js');
+const { parseQuantity, parsePrice, unitPrice, rank, plausible } = require('../parse.js');
 
 let n = 0;
 function q(title, expect, why) {
@@ -98,6 +98,26 @@ n++;
   assert.strictEqual(r(23.33), 'plain', 'only 13% worse - not worth shaming');
   assert.strictEqual(r(45.0), 'worst', '2.2x the cheapest');
   assert.strictEqual(rank([12])(12), 'plain', 'a lone tile has nothing to compare to');
+}
+
+// --- outlier suppression, from a live shopee.ph search --------------------
+n++;
+{
+  // Real page: nine milk tiles clustered near ₱42/100g plus one listing whose
+  // title said "33g" while the photo showed a bundle -> ₱378.8/100g.
+  const page = [41.9, 42.0, 44.7, 42.3, 42.3, 40.2, 70.5, 125.1, 157.3, 378.8];
+  const ok = plausible(page);
+  assert.strictEqual(ok(378.8), false, 'a 9x outlier is a listing lie, not a bargain');
+  assert.strictEqual(ok(41.9), true);
+  assert.strictEqual(ok(157.3), true, 'a genuinely pricier product must survive');
+
+  // The mirror case: a title claiming 25kg for a 1kg bag reads far too cheap,
+  // and would wrongly win "best".
+  assert.strictEqual(plausible([40, 42, 44, 46, 1.2])(1.2), false);
+
+  // Too few tiles to trust a median - never suppress.
+  assert.strictEqual(plausible([20, 900])(900), true);
+  assert.strictEqual(plausible([])(5), true);
 }
 
 console.log(`\n  ${n} assertions passed\n`);
