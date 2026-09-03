@@ -8,7 +8,24 @@ Nothing.
 
 Per Piece does not collect, transmit, sell, or share any data. There is no
 server, no analytics, no tracking pixel, no crash reporter and no third-party
-service of any kind. The extension makes no network requests at all.
+service of any kind. The extension never makes a network request on its own.
+
+## Reporting a wrong price
+
+The popup has a button for reporting a price that looks wrong. It is the only
+part of the extension that can send anything anywhere, and it does nothing
+until you press it.
+
+When you press it, the extension builds a note from what the page you are
+looking at already showed you: the page address without its query string, and
+the product titles and prices it read, marked as badged, not badged, or hidden.
+That note is copied to your clipboard and opened in a pre-filled GitHub issue
+form so you can read it, edit it, and decide whether to submit it.
+
+Nothing is gathered in the background, nothing is stored between pages, and no
+report is ever sent automatically. Close the tab and nothing has left your
+computer. Query strings are dropped on purpose, because store URLs often carry
+session and referral identifiers.
 
 ## What it reads
 

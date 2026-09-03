@@ -16,6 +16,11 @@
   let enabled = true;
   let timer = null;
 
+  // Diagnostics for a user-initiated report. Held in memory for this page
+  // only: never written to storage, never sent anywhere on its own. The
+  // valuable rows are the misses - a tile we priced but could not size.
+  let report = { ok: [], miss: [], hidden: [] };
+
   const isOurs = (el) => el.classList && el.classList.contains(BADGE);
 
   // getComputedStyle is the expensive call here, so memoise per scan.
@@ -130,12 +135,20 @@
     const found = [];
     const seen = new Set();
 
+    report = { ok: [], miss: [], hidden: [] };
+
     for (const pe of priceElements(document.body)) {
       const tile = tileOf(pe);
       if (seen.has(tile)) continue;
       seen.add(tile);
-      const up = badgeFor(tile, pe);
-      if (up) found.push({ tile, priceEl: pe, up });
+
+      const price = parsePrice(visibleText(pe));
+      if (!price) continue;
+      const title = titleOf(tile);
+      const up = unitPrice(price, parseQuantity(title));
+
+      if (up) found.push({ tile, priceEl: pe, up, title, price });
+      else if (title) report.miss.push({ title, price });
     }
 
     // Rank within each dimension - comparing ₱/100g against ₱/pc is meaningless.
@@ -151,7 +164,10 @@
       const group = [];
       for (const f of all) {
         if (believable(f.up.value)) group.push(f);
-        else clearTile(f.tile);
+        else {
+          clearTile(f.tile);
+          report.hidden.push({ title: f.title, price: f.price, unit: f.up.text });
+        }
       }
 
       const grade = rank(group.map((f) => f.up.value));
@@ -175,8 +191,25 @@
         if (cls !== 'plain') f.tile.classList.add(`pp-${cls}`);
         f.tile.setAttribute(MARK, key);
       }
+
+      for (const f of group) {
+        report.ok.push({ title: f.title, price: f.price, unit: f.up.text });
+      }
     }
   }
+
+  // Answers the popup's "report a wrong price" button. Only ever runs when the
+  // user clicks it, and only returns what this page already showed them.
+  chrome.runtime.onMessage.addListener((msg, _sender, respond) => {
+    if (!msg || msg.type !== 'pp-report') return;
+    respond({
+      // Path only. Query strings on these stores carry session and referral
+      // ids that are none of our business.
+      url: location.origin + location.pathname,
+      ...report,
+    });
+    return true;
+  });
 
   const schedule = () => {
     clearTimeout(timer);

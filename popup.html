@@ -36,6 +36,20 @@
   .w { background: #fdeaea; border-color: #f0a3a3; color: #a11a1a; }
   .n { background: #eef1f4; border-color: #d8dee5; color: #3d4752; }
   .foot { margin-top: 12px; font-size: 11px; color: #7c8590; }
+  button {
+    margin-top: 13px; width: 100%; padding: 7px 10px; border-radius: 6px;
+    border: 1px solid #d3dae1; background: #f7f9fb; color: #24303c;
+    font: 600 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    cursor: pointer;
+  }
+  button:hover { background: #eef2f6; }
+  button:disabled { opacity: .5; cursor: default; }
+  #msg { margin-top: 7px; font-size: 11px; color: #5d6772; min-height: 14px; }
+  @media (prefers-color-scheme: dark) {
+    button { background: #222831; border-color: #39414b; color: #dfe6ed; }
+    button:hover { background: #2a323c; }
+    #msg { color: #98a2ad; }
+  }
   @media (prefers-color-scheme: dark) {
     body { background: #171b20; color: #e6eaef; }
     p { color: #98a2ad; } .row { border-color: #2a3038; } .foot { color: #808a95; }
@@ -59,7 +73,12 @@
   <span class="chip w">₱45/100g</span>
 </div>
 
+<button id="report">Report a wrong or missing price</button>
+<div id="msg"></div>
+
 <p class="foot">Nothing is collected or sent anywhere. All the maths runs on this
-device. A tile stays blank when the size cannot be read with confidence.</p>
+device. A tile stays blank when the size cannot be read with confidence.
+Reporting is manual: it builds the note when you press the button, shows it to
+you, and you choose whether to send it.</p>
 
 <script src="popup.js"></script>

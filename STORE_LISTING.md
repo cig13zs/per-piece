@@ -63,10 +63,15 @@ left off.
 
 PRIVACY
 
-There is no account, no sign-up and no API key. The extension makes no network
-requests whatsoever. Nothing is collected, nothing is transmitted, and no data
-leaves your computer. All it stores is whether you switched the badges on or
-off.
+There is no account, no sign-up and no API key. The extension never makes a
+network request on its own. Nothing is collected, nothing is transmitted, and
+no data leaves your computer. All it stores is whether you switched the badges
+on or off.
+
+If a price looks wrong you can press the report button in the popup. It builds
+a note from what the page already showed you, copies it to your clipboard, and
+opens a pre-filled form so you can read it and decide whether to send it.
+Nothing is gathered in the background and nothing is ever sent by itself.
 
 It runs only on shopee.ph and lazada.com.ph, and has no access to any other
 site, to your tabs, or to your browsing history.
