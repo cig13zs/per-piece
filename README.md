@@ -13,7 +13,7 @@ because the currency is taken from the page.
 ## How it works
 
 Everything happens on the page you are already looking at. There is no server,
-no account, no API key and no AI model — the extension never makes a network
+no account, no API key and no AI model - the extension never makes a network
 request on its own. It reads the product title and the price that are already
 on screen, does arithmetic, and writes a small badge next to the price.
 
@@ -35,9 +35,9 @@ It is also why one content script covers ten different retailers.
 
 **Read what the shopper pays.** Struck-through "original" prices are skipped
 everywhere, including when a store renders the old price *before* the current
-one. Amazon, Walmart and Target print every price twice — once for screen
+one. Amazon, Walmart and Target print every price twice - once for screen
 readers and once for eyes, the visual copy split into spans that concatenate to
-`$848` — so the accessible copy is the one read and the `aria-hidden` twin is
+`$848` - so the accessible copy is the one read and the `aria-hidden` twin is
 ignored. Reading either of the wrong ones quotes a wrong number, and every unit
 price after it would be wrong too.
 
@@ -83,7 +83,7 @@ and to nothing else. It is the same code, run on demand.
 
 Currencies are read off the page rather than assumed: ₱ P PHP, $ S$ HK$ NT$ A$
 C$ NZ$ R$ MX$, £, €, ¥, ₹, ₩, ฿, ₫, Rp, RM, CHF, AED, SAR, zł, Kč and kr. Both
-number conventions are handled, and the distinction is load-bearing — `1.234,56`
+number conventions are handled, and the distinction is load-bearing - `1.234,56`
 is one thousand two hundred, `Rp 125.000` is a hundred and twenty-five thousand,
 and getting it backwards is a 1000x error. Ranking is grouped per currency, so
 a page showing two never compares across them.
@@ -92,7 +92,7 @@ a page showing two never compares across them.
 
 Mass and volume are shown per 100 g and per 100 ml. Counts are shown per piece.
 When a listing carries both a size and a count (`Vitamin C 500mg 100s`), it
-means "100 units of that size", so per piece is the honest reading — per 100 g
+means "100 units of that size", so per piece is the honest reading - per 100 g
 of a tablet bottle is meaningless. Explicit multipacks (`300g x 6`, `24 x 22g`,
 `Twin Pack`, `Pack of 42`, `30 Count`) are multiplied out to the true total
 first.
@@ -107,5 +107,5 @@ feedback channel, which is why the button exists at all.
 
 ## Licence
 
-MIT. Free forever — [buy me a coffee](https://ko-fi.com/jju1s) if it saved you
+MIT. Free forever - [buy me a coffee](https://ko-fi.com/jju1s) if it saved you
 money.

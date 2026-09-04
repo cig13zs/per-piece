@@ -1,4 +1,4 @@
-# Privacy policy — Per Piece
+# Privacy policy - Per Piece
 
 Last updated: 4 September 2026
 
@@ -30,9 +30,9 @@ session and referral identifiers.
 
 ## What it reads
 
-On the shopping sites listed in the extension's manifest — Shopee, Lazada,
+On the shopping sites listed in the extension's manifest - Shopee, Lazada,
 Amazon, eBay, AliExpress, Temu, Shein, Walmart, Target, Costco, Flipkart and
-TikTok Shop — the extension reads the product titles and prices that are
+TikTok Shop - the extension reads the product titles and prices that are
 already displayed on the page. It uses them to calculate a price per unit and
 to draw a small badge next to the price.
 
@@ -57,17 +57,17 @@ Removing the extension removes it.
 
 ## Permissions
 
-**`storage`** — saves the on/off switch described above. Nothing else is stored.
+**`storage`** - saves the on/off switch described above. Nothing else is stored.
 
-**`activeTab`** — lets the "Scan this page" button work on a shop that is not in
+**`activeTab`** - lets the "Scan this page" button work on a shop that is not in
 the list, for that one tab, only when you press it.
 
-**`scripting`** — the mechanism the button uses to run the extension's own
+**`scripting`** - the mechanism the button uses to run the extension's own
 bundled files in that tab. No code is downloaded or generated at runtime; the
 only thing it can run is the same `parse.js` and `content.js` that ship inside
 the extension.
 
-**Access to the listed shopping sites** — the extension only runs by itself on
+**Access to the listed shopping sites** - the extension only runs by itself on
 those sites, because those are the pages whose prices it annotates. It has no
 access to your browsing history, to your other tabs, or to any account you are
 signed in to.

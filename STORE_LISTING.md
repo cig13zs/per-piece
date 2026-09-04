@@ -1,4 +1,4 @@
-# Chrome Web Store listing — Per Piece
+# Chrome Web Store listing - Per Piece
 
 Copy-paste source for the dashboard. Fields are in submission order.
 Current package: **v1.2.0**.
@@ -135,7 +135,7 @@ is downloaded, fetched or generated at runtime. Without it the button cannot
 apply the same unit-price calculation on a site outside the host list.
 ```
 
-**Host access — the listed shopping domains**
+**Host access - the listed shopping domains**
 
 ```
 The extension reads the product title and price already displayed on search and

@@ -17,18 +17,18 @@ which is what gets a comment section arguing.
 
 ## Shot list (8 seconds, vertical, no talking)
 
-1. **0.0–1.5s** — Shopee search for `gatas` already on screen, thumb scrolling.
+1. **0.0–1.5s** - Shopee search for `gatas` already on screen, thumb scrolling.
    No intro, no logo, no "hey guys".
-2. **1.5–2.5s** — Badges pop in. Let the green tick and the red flag land in the
+2. **1.5–2.5s** - Badges pop in. Let the green tick and the red flag land in the
    same frame.
-3. **2.5–5.0s** — Pinch-zoom onto one pair: single pack ₱20.7/100g green,
+3. **2.5–5.0s** - Pinch-zoom onto one pair: single pack ₱20.7/100g green,
    bundle ₱31.1/100g red. Hold long enough to read both.
-4. **5.0–7.0s** — Cut to a second, different category doing the same thing, so
+4. **5.0–7.0s** - Cut to a second, different category doing the same thing, so
    it reads as a tool and not a one-off coincidence.
-5. **7.0–8.0s** — Extension name, one line, gone.
+5. **7.0–8.0s** - Extension name, one line, gone.
 
 On-screen text, one line at a time, no more than six words each. Something in
-the register of "the bundle is more expensive" — flat and factual beats hype
+the register of "the bundle is more expensive" - flat and factual beats hype
 here, because the number is already the hook.
 
 Do not show the install flow. Nobody watches an install flow.
@@ -52,7 +52,7 @@ past 50k views. Miss both and the problem is the demo, not the code, so recut
 the video before touching the parser.
 
 **Day 30:** at least 1,000 installs or a 4.5+ rating from 10+ reviews. Miss both
-and take one repositioning attempt — a different category framing — then stop
+and take one repositioning attempt - a different category framing - then stop
 and write down why.
 
 Prewritten kill conditions: a Chrome Web Store policy strike, a trademark
@@ -63,13 +63,13 @@ complaint from either marketplace, or both gates failing.
 On a live `bear brand powdered milk` search the page came back split: five tiles
 in ₱/100g and four in ₱/pc. That happens when a title carries only a size
 ("300g") versus only a count, and it makes cross-tile comparison harder than it
-should be — the whole pitch is one glance.
+should be - the whole pitch is one glance.
 
 The alternative is to multiply size by count whenever both appear, so
 "33g" plus a count of 16 becomes 528 g and reads ₱40.7/100g, directly
 comparable to the 300 g packs. That was tried and deliberately not shipped,
 because the same rule turns "Biogesic 500mg 10s" into ₱1,040/100g of
-paracetamol — true, and useless.
+paracetamol - true, and useless.
 
 Neither reading is wrong; both produce correct arithmetic. Ship as-is, watch
 what people actually complain about, then pick. Do not guess this one.
@@ -115,7 +115,7 @@ that should badge and does not is a missing pattern; a listing that badges
 earns one-star reviews.
 
 **Coverage on a mixed search.** Unit price is meaningful for groceries and
-consumables. On a general search — clothes, phone cases, gadgets — most tiles
+consumables. On a general search - clothes, phone cases, gadgets - most tiles
 will correctly show nothing. That is the design working, but it looks like the
 extension is broken to someone who installed it after a grocery video. The
 store description should set that expectation, and it does.

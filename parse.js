@@ -235,7 +235,7 @@ const SYMS = Object.keys(CURRENCY).sort((a, b) => b.length - a.length).map(esc).
 // Digits with any mix of thousands and decimal separators. The first branch
 // is space-grouped money ("1 234,56" on fr/pl/se pages); its lookahead stops
 // it eating a pack size that sits in the same node, as in "P199 300g".
-const SP = String.raw`[   ]`;
+const SP = String.raw`[ \u00a0\u202f]`;
 const NUM = String.raw`\d{1,3}(?:${SP}\d{3})+(?:[.,]\d{1,2})?(?!\s*[a-z])|\d[\d.,]*\d|\d`;
 
 // Symbol before the number is the common case; "12,99 €" puts it after.
