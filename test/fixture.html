@@ -7,10 +7,12 @@
      its own span, struck-through original prices before AND after the current
      one, tiles nested several levels deep.
 
-     Bottom: an Amazon US search - the real .a-price shape, where the accurate
-     price lives in a visually hidden .a-offscreen span and the visible one is
-     split into symbol / whole / fraction spans that read "$2499" if you
-     concatenate them naively.
+     Bottom: an Amazon search - the real .a-price shape, where the accurate
+     price lives in an opacity-0 .a-offscreen span and the visible one is split
+     into symbol / whole / fraction spans that read "$2499" if you concatenate
+     them naively. Amazon also prints its own rate next to the item price, so
+     every tile holds two things shaped like a price and only one of them is
+     what you pay. Both details were taken off a live amazon.com search.
 
      Both grids on one page also prove the ranking is grouped by currency: the
      dollar tiles must never be ranked against the peso tiles, and no badge may
@@ -30,8 +32,10 @@
   .img { height: 92px; background: linear-gradient(135deg,#e8e8e8,#d6d6d6); }
 
   /* Amazon's own markup, near enough. */
-  .a-offscreen { position: absolute; width: 1px; height: 1px; overflow: hidden;
-                 clip: rect(0 0 0 0); white-space: nowrap; }
+  /* Exactly how amazon.com hides it, verified on a live search: absolutely
+     positioned and opacity 0, at full text size. Anything measuring the box
+     concludes it is visible. */
+  .a-offscreen { position: absolute; left: 0; opacity: 0; white-space: nowrap; }
   .a-price { color: #0f1111; font-weight: 400; }
   .a-price-symbol { font-size: 11px; vertical-align: super; }
   .a-price-whole { font-size: 20px; }
@@ -87,8 +91,16 @@ const AMZ = [
   ['Ninja Air Fryer 4L Digital Countertop', 119.99, 0],
 ];
 
+// Amazon's own per-ounce rate, printed beside the price on most grocery
+// tiles. It must never be read as the price of anything.
+const rate = (t, p) => {
+  const m = t.match(/([\d.]+)\s*(?:oz|ounce)/i);
+  return m ? (p / parseFloat(m[1])).toFixed(2) : null;
+};
+
 document.getElementById('amz').innerHTML = AMZ.map(([t, p, o]) => {
   const [w, f] = p.toFixed(2).split('.');
+  const r = rate(t, p);
   return `
   <div class="Jq2p"><div class="img"></div><div class="m9Vc">
     <div class="a-title">${t}</div>
@@ -96,6 +108,8 @@ document.getElementById('amz').innerHTML = AMZ.map(([t, p, o]) => {
       <span class="a-price"><span class="a-offscreen">$${p.toFixed(2)}</span><span
         aria-hidden="true"><span class="a-price-symbol">$</span><span
         class="a-price-whole">${w}</span><span class="a-price-fraction">${f}</span></span></span>
+      ${r ? ` (<span class="a-price a-text-price"><span class="a-offscreen">$${r}</span><span
+        aria-hidden="true">$${r}</span></span>/ounce)` : ''}
       ${o ? `<span class="a-text-price">List: $${o.toFixed(2)}</span>` : ''}
     </div>
   </div></div>`;

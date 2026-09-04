@@ -71,10 +71,32 @@
     return !!t && t.length <= 48 && hasMoney(t);
   };
 
+  // Amazon prints its own rate beside the item price: "PHP 936.28 (PHP 78.08
+  // /ounce)". Both are prices by shape, so the tile looks like it holds two
+  // products, the climb stops short of the real tile, no title is found and
+  // nothing gets badged. What separates them is the text immediately after:
+  // a rate is followed by "/ounce". Checking a couple of levels up catches the
+  // wrapper, and anchoring the match to the START of that text is what keeps
+  // the item price - whose tail is " (PHP 78.08..." - out of it.
+  const RATE_TAIL = /^\s*[\/]\s*[a-z]/i;
+  const RATE_SELF = /\d\s*[\/]\s*[a-z]/i;
+
+  function isRate(el) {
+    for (let n = el, i = 0; n && i < 3; n = n.parentElement, i++) {
+      let t = '';
+      for (let sib = n.nextSibling; sib && t.length < 12; sib = sib.nextSibling) {
+        t += sib.textContent || '';
+      }
+      if (RATE_TAIL.test(t)) return true;
+    }
+    return false;
+  }
+
   function isPriceLeaf(el) {
     if (isOurs(el) || el.closest(`.${BADGE}`) || !maybePrice(el)) return false;
     const vt = visibleText(el);
     if (!vt || vt.length > 40 || !hasMoney(vt)) return false;
+    if (RATE_SELF.test(vt) || isRate(el)) return false;
     for (const c of el.children) {
       if (maybePrice(c) && hasMoney(visibleText(c))) return false;
     }
@@ -97,12 +119,19 @@
   // accessible copy is a 1px clipped span sitting at the START of the price
   // block, so hanging the badge off it prints "$2.49/100g $8.48" - backwards.
   // Anchor to the nearest ancestor that actually occupies space instead.
+  function shown(el) {
+    const cs = getComputedStyle(el);
+    // Amazon hides its screen-reader copy with opacity:0, not with clip or a
+    // 1px box, and clip does not shrink the layout box anyway - so measuring
+    // the rect alone says the hidden copy is 150x32 and visible.
+    if (cs.opacity === '0' || cs.visibility === 'hidden') return false;
+    if (cs.clip !== 'auto' || cs.clipPath !== 'none') return false;
+    const r = el.getBoundingClientRect();
+    return r.width >= 8 && r.height >= 8;
+  }
+
   function anchorFor(el) {
-    for (let i = 0; i < 3 && el.parentElement; i++) {
-      const r = el.getBoundingClientRect();
-      if (r.width >= 8 && r.height >= 8) break;
-      el = el.parentElement;
-    }
+    for (let i = 0; i < 3 && el.parentElement && !shown(el); i++) el = el.parentElement;
     return el;
   }
 
