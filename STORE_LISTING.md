@@ -1,14 +1,15 @@
 # Chrome Web Store listing - Per Piece
 
 Copy-paste source for the dashboard. Fields are in submission order.
-Current package: **v1.2.0**.
+Current package: **v1.2.1**. The store reads the name and summary from
+`manifest.json`, so changing either one means a new package.
 
 ---
 
 ## Name (75 max)
 
 ```
-Per Piece - Real Price Per Unit
+Per Piece - Unit Price Calculator per 100g, 100ml or Piece
 ```
 
 Do **not** put "Shopee", "Lazada" or "Amazon" in the name. Using another
@@ -19,7 +20,7 @@ support is ordinary descriptive use and is fine.
 ## Summary (132 max)
 
 ```
-Shows the real price per 100g, 100ml or per piece while you shop, so you can see which bundle is actually cheaper.
+Unit price on Amazon and other shops: the real cost per 100g, 100ml or piece, under every price, so bundles stop looking cheap.
 ```
 
 ## Category
@@ -35,7 +36,9 @@ English
 ## Description
 
 ```
-Is the bundle actually cheaper? Per Piece answers that before you add to cart.
+Is the bundle actually cheaper? Per Piece shows the unit price - the real
+cost per 100g, per 100ml or per piece - under every price on the shopping
+sites you already use.
 
 It puts a small badge under every price showing what the item really costs per
 100g, per 100ml, or per piece. The cheapest option on the page gets a green
@@ -47,16 +50,15 @@ that works out to P31.10/100g stops looking like a deal.
 
 WHERE IT WORKS
 
-Shopee and Lazada in every market they operate in, Amazon in all twenty-one
-countries, eBay, AliExpress, Temu, Shein, Walmart, Target, Costco, Flipkart and
-TikTok Shop.
+Automatically on the large international retailers, Amazon among them, and on
+Shopee and Lazada across the markets they operate in. Chrome shows you the full
+list on the permissions screen before you install.
 
 On any other shop, open the popup and press Scan this page. The extension then
 runs on that one tab, only because you asked it to.
 
-Prices are read in whatever currency the page uses - peso, dollar, pound, euro,
-yen, rupee, won, baht, dong, ringgit, rupiah and more - and both number formats
-are handled, so 1.234,56 and 1,234.56 are never confused.
+Prices are read in whatever currency the page uses, and both number formats are
+handled, so 1.234,56 and 1,234.56 are never confused.
 
 WHAT IT DOES
 
@@ -172,14 +174,16 @@ public URL is mandatory even though the answer is "nothing is collected".
 Take these from a real search page once the extension is loaded unpacked. Real
 captures convert better than mockups, and reviewers can tell.
 
-1. A grocery search grid with badges visible, including one green best and one
-   red worst in the same viewport. This is the whole pitch and should be
-   screenshot one.
-2. Tight crop on a single pack next to its multipack, so the two figures can be
+1. An Amazon grocery search grid in dollars, badges visible, one green best and
+   one red worst in the same viewport. This is the whole pitch and it has to
+   be screenshot one. Dollars, not pesos: the store shows this thumbnail to a
+   mostly US and EU audience and pesos read as "not for me".
+2. Tight crop on a single pack beside its multipack, so both figures can be
    read side by side.
-3. An Amazon search in dollars, which is what tells a non-PH viewer the
-   extension is for them too.
+3. Walmart or Target, which shows it is not an Amazon-only tool.
 4. The popup open, showing the switch and the colour key.
+5. A Shopee or Lazada grid in pesos, last, for the PH audience the videos
+   send.
 
 Add a short caption burned into each image. Screenshot one should say something
 close to "The bundle is not always cheaper."
@@ -191,7 +195,8 @@ unit" underneath. Keep text large; it renders small in the store.
 
 ## Version notes for the update
 
-v1.2.0 widens the site list from two Philippine stores to the major
-international retailers, adds multi-currency price reading, and adds the
-"Scan this page" button. The permission set gains `activeTab` and `scripting`;
-both exist to avoid asking for broad host access.
+v1.2.1 is the first upload since 1.1.0. It widens the site list from two
+Philippine stores to the major international retailers, adds multi-currency
+price reading, and adds the "Scan this page" button. The permission set gains
+`activeTab` and `scripting`; both exist to avoid asking for broad host access.
+The name and summary now lead with "unit price", the phrase shoppers search for.

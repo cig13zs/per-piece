@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Per Piece - Real Price Per Unit",
-  "version": "1.2.0",
-  "description": "Shows the real price per 100g, 100ml or per piece while you shop, so you can see which bundle is actually cheaper.",
+  "name": "Per Piece - Unit Price Calculator per 100g, 100ml or Piece",
+  "version": "1.2.1",
+  "description": "Unit price on Amazon and other shops: the real cost per 100g, 100ml or piece, under every price, so bundles stop looking cheap.",
   "permissions": [
     "storage",
     "activeTab",
