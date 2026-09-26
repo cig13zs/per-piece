@@ -80,9 +80,9 @@ off.
 PRIVACY
 
 There is no account, no sign-up, no API key and no AI. The extension never
-makes a network request on its own. Nothing is collected, nothing is
-transmitted, and no data leaves your computer. All it stores is whether you
-switched the badges on or off.
+makes a network request on its own. Nothing is sent anywhere, and no data
+leaves your computer. All it stores is whether you switched the badges on or
+off.
 
 If a price looks wrong you can press the report button in the popup. It builds
 a note from what the page already showed you, copies it to your clipboard, and
@@ -156,7 +156,10 @@ runtime.
 
 ## Data usage disclosures
 
-Tick nothing. Then confirm all three certifications:
+Tick **Website content**: the extension reads product titles and prices on the
+page. Google's User Data FAQ requires disclosing data an extension handles "even
+when data is processed or stored locally on a user's device". Then confirm all
+three certifications:
 
 - Not being sold to third parties
 - Not being used or transferred for any purpose unrelated to the item's single purpose
@@ -164,8 +167,8 @@ Tick nothing. Then confirm all three certifications:
 
 ## Privacy policy URL
 
-Point at the raw `PRIVACY.md` on GitHub, or a GitHub Pages copy. A reachable
-public URL is mandatory even though the answer is "nothing is collected".
+`https://github.com/cig13zs/per-piece/blob/master/PRIVACY.md`. The repo has no
+Pages site, so a `github.io` link would 404. A reachable public URL is mandatory.
 
 ---
 
