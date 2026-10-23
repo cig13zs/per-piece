@@ -2,6 +2,8 @@
 
 ## 1.3.0 (2026-10-23)
 
+- Cheapest on this page: the popup lists the cheapest item for each unit and currency on the
+  open shop page, and its Show button scrolls the page to that tile and rings it.
 - Pick the unit in the popup: weight per 100 g, per kg, per oz or per lb, and volume per
   100 ml, per litre or per fl oz, to match the shelf labels you are used to. Counts stay per
   piece. Open shop tabs redraw their badges straight away, and best and worst do not move.

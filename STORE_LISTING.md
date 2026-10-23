@@ -65,6 +65,7 @@ WHAT IT DOES
 - Price per 100g, per 100ml, or per piece, right under the price
 - Prefer per kg, per litre, per oz or per fl oz? Pick it in the popup
 - Marks the best value on the page, and flags the ones that are much worse
+- The popup lists the cheapest item on the page and scrolls you straight to it
 - Reads multipacks properly: "300g x 6", "24 x 22g", "Twin Pack", "Pack of 42"
 - Reads shelf shorthand like "10s" for a 10-tablet pack and "30 Count"
 - Ignores struck-out original prices and uses what you would actually pay
@@ -199,9 +200,11 @@ unit" underneath. Keep text large; it renders small in the store.
 
 ## Version notes for the update
 
-v1.3.0 adds a unit choice in the popup: weight per 100 g, kg, oz or lb and volume
-per 100 ml, litre or fl oz. The `storage` permission now keeps that choice next to
-the on/off switch; no permission changes.
+v1.3.0 adds "Cheapest on this page" to the popup, with a Show button that
+scrolls the open shop page to that tile, and a unit choice in the popup: weight
+per 100 g, kg, oz or lb and volume per 100 ml, litre or fl oz. The `storage`
+permission now keeps that choice next to the on/off switch; no permission
+changes.
 
 v1.2.1 was the first upload since 1.1.0. It widened the site list from two
 Philippine stores to the major international retailers, added multi-currency
