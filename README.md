@@ -51,8 +51,9 @@ price after it would be wrong too.
 | `content.js` | Finds tiles, injects badges, watches for infinite scroll. |
 | `content.css` | Badge styling, every property explicit so the stores' cascade cannot reach it. |
 | `popup.html/js` | On/off switch, scan-this-page button, report button. |
-| `test/parse.test.js` | 83 assertions over real title formats. |
+| `test/parse.test.js` | Assertions over real title formats, prices and currencies. |
 | `test/fixture.html` | Fake Shopee and Amazon grids for checking the DOM layer in a browser. |
+| `build.mjs` | Packs the shipped files into the store zip. |
 
 ## Develop
 
@@ -72,6 +73,10 @@ python -m http.server 8731
 
 To load it in Chrome: `chrome://extensions` → Developer mode → Load unpacked →
 pick this folder.
+
+`node build.mjs` (Node 22 or newer) checks the manifest and writes
+`dist/per-piece-<version>.zip` with only the files the extension ships, ready
+for the Chrome Web Store upload.
 
 ## Supported
 
