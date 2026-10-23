@@ -1,5 +1,7 @@
 # Per Piece
 
+[![Tests](https://img.shields.io/github/actions/workflow/status/cig13zs/per-piece/test.yml?label=tests)](https://github.com/cig13zs/per-piece/actions)
+
 Shows the real price per unit next to every product on Shopee, Lazada, Amazon,
 eBay, AliExpress, Temu, Shein, Walmart, Target and Flipkart, so a "3PCS BUNDLE
 SALE" can be checked against a single pack in one glance instead of in your
