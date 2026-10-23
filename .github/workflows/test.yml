@@ -1,0 +1,17 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node test/parse.test.js
+      - name: Check JavaScript syntax
+        run: for f in *.js; do node --check "$f"; done
+      - name: Check the manifest
+        run: node -e "const m = require('./manifest.json'); if (m.manifest_version !== 3) throw new Error('manifest_version must be 3'); console.log(m.name, m.version)"
