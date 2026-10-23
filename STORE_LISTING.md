@@ -1,7 +1,7 @@
 # Chrome Web Store listing - Per Piece
 
 Copy-paste source for the dashboard. Fields are in submission order.
-Current package: **v1.2.1**. The store reads the name and summary from
+Current package: **v1.3.0** (`node build.mjs` writes `dist/per-piece-1.3.0.zip`). The store reads the name and summary from
 `manifest.json`, so changing either one means a new package.
 
 ---
@@ -63,6 +63,7 @@ handled, so 1.234,56 and 1,234.56 are never confused.
 WHAT IT DOES
 
 - Price per 100g, per 100ml, or per piece, right under the price
+- Prefer per kg, per litre, per oz or per fl oz? Pick it in the popup
 - Marks the best value on the page, and flags the ones that are much worse
 - Reads multipacks properly: "300g x 6", "24 x 22g", "Twin Pack", "Pack of 42"
 - Reads shelf shorthand like "10s" for a 10-tablet pack and "30 Count"
@@ -82,7 +83,7 @@ PRIVACY
 There is no account, no sign-up, no API key and no AI. The extension never
 makes a network request on its own. Nothing is sent anywhere, and no data
 leaves your computer. All it stores is whether you switched the badges on or
-off.
+off, and the unit you picked.
 
 If a price looks wrong you can press the report button in the popup. It builds
 a note from what the page already showed you, copies it to your clipboard, and
@@ -113,9 +114,9 @@ These fields are where most rejections happen. Keep them concrete.
 **`storage`**
 
 ```
-Stores exactly one value: whether the user has switched the unit-price badges
-on or off. It is kept locally and is never transmitted. No other data is
-stored.
+Stores two settings: whether the user has switched the unit-price badges on or
+off, and which display unit they picked for weight and volume (for example per
+kg). They are kept locally and are never transmitted. No other data is stored.
 ```
 
 **`activeTab`**
@@ -198,8 +199,12 @@ unit" underneath. Keep text large; it renders small in the store.
 
 ## Version notes for the update
 
-v1.2.1 is the first upload since 1.1.0. It widens the site list from two
-Philippine stores to the major international retailers, adds multi-currency
-price reading, and adds the "Scan this page" button. The permission set gains
+v1.3.0 adds a unit choice in the popup: weight per 100 g, kg, oz or lb and volume
+per 100 ml, litre or fl oz. The `storage` permission now keeps that choice next to
+the on/off switch; no permission changes.
+
+v1.2.1 was the first upload since 1.1.0. It widened the site list from two
+Philippine stores to the major international retailers, added multi-currency
+price reading, and added the "Scan this page" button. The permission set gained
 `activeTab` and `scripting`; both exist to avoid asking for broad host access.
 The name and summary now lead with "unit price", the phrase shoppers search for.
