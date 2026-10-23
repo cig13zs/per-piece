@@ -6,11 +6,23 @@ const msg = document.getElementById('msg');
 const ISSUES = 'https://github.com/cig13zs/per-piece/issues/new';
 const MAX_ROWS = 12;   // keep a report readable; the misses matter most
 
-chrome.storage.local.get({ enabled: true }, (s) => { box.checked = s.enabled; });
+const massSel = document.getElementById('mass');
+const volSel = document.getElementById('volume');
+
+chrome.storage.local.get({ enabled: true, units: {} }, (s) => {
+  box.checked = s.enabled;
+  if (s.units.mass) massSel.value = s.units.mass;
+  if (s.units.volume) volSel.value = s.units.volume;
+});
 
 box.addEventListener('change', () => {
   chrome.storage.local.set({ enabled: box.checked });
 });
+
+// Badges on open shop tabs redraw in the new unit through storage.onChanged.
+const saveUnits = () => chrome.storage.local.set({ units: { mass: massSel.value, volume: volSel.value } });
+massSel.addEventListener('change', saveUnits);
+volSel.addEventListener('change', saveUnits);
 
 const tab = () => chrome.tabs.query({ active: true, currentWindow: true }).then(([t]) => t);
 
