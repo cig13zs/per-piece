@@ -1,7 +1,7 @@
 /* node test/parse.test.js  -  exits non-zero on first failure. */
 const assert = require('assert');
 const { parseQuantity, parsePrice, parseMoney, toNumber, unitPrice, rank, plausible,
-  formatMoney, displayFor } = require('../parse.js');
+  formatMoney, displayFor, cheapestPerGroup } = require('../parse.js');
 
 let n = 0;
 function q(title, expect, why) {
@@ -184,6 +184,24 @@ n++;
     return v.map(g);
   };
   n++; assert.deepStrictEqual(grades({ mass: 'kg' }), grades(undefined));
+}
+
+// --- cheapest on the page, per unit and currency ---------------------------
+{
+  const page = [
+    { group: 'mass|₱', value: 31.1, title: 'Bundle' },
+    { group: 'count|₱', value: 5.2, title: 'Wipes 10s' },
+    { group: 'mass|₱', value: 20.7, title: 'Single pack' },
+    { group: 'mass|$', value: 2.49, title: 'Lonely dollar tile' },
+    { group: 'count|₱', value: 4.2, title: 'Wipes 24s' },
+    { group: 'mass|₱', value: 20.7, title: 'Same price, later' },
+    { group: 'count|₱', value: NaN, title: 'unreadable' },
+  ];
+  const best = cheapestPerGroup(page);
+  n++; assert.deepStrictEqual(best.map((b) => [b.group, b.title, b.count]),
+    [['mass|₱', 'Single pack', 3], ['count|₱', 'Wipes 24s', 2]],
+    'one per group, first of a tie, single-tile groups and NaN skipped, page order');
+  n++; assert.deepStrictEqual(cheapestPerGroup([]), []);
 }
 
 // --- outlier suppression, from a live shopee.ph search --------------------

@@ -393,9 +393,27 @@ function rank(values) {
   };
 }
 
+/**
+ * The cheapest entry of each group, for the popup's "Cheapest on this page".
+ * items: [{ group, value, ... }]. Groups with a single entry are skipped
+ * (nothing to compare), ties keep the first, and groups come back in the order
+ * they first appear on the page.
+ */
+function cheapestPerGroup(items) {
+  const best = new Map();
+  const size = new Map();
+  for (const it of items) {
+    if (!it || !Number.isFinite(it.value)) continue;
+    size.set(it.group, (size.get(it.group) || 0) + 1);
+    const cur = best.get(it.group);
+    if (!cur || it.value < cur.value) best.set(it.group, it);
+  }
+  return [...best.entries()].filter(([g]) => size.get(g) > 1).map(([g, it]) => ({ ...it, count: size.get(g) }));
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     parseQuantity, parsePrice, parseMoney, toNumber, hasMoney,
-    unitPrice, rank, plausible, formatMoney, displayFor, DISPLAY_CHOICES,
+    unitPrice, rank, plausible, formatMoney, displayFor, DISPLAY_CHOICES, cheapestPerGroup,
   };
 }
