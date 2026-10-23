@@ -1,7 +1,7 @@
 /* node test/parse.test.js  -  exits non-zero on first failure. */
 const assert = require('assert');
 const { parseQuantity, parsePrice, parseMoney, toNumber, unitPrice, rank, plausible,
-  formatMoney } = require('../parse.js');
+  formatMoney, displayFor } = require('../parse.js');
 
 let n = 0;
 function q(title, expect, why) {
@@ -154,6 +154,36 @@ n++;
 {
   const up = unitPrice(24.99, parseQuantity('Coffee Beans 340g'), '$');
   assert.strictEqual(up.text, '$7.35/100g');
+}
+
+// --- display units picked in the popup -------------------------------------
+{
+  const coffee = parseQuantity('Coffee Beans 340g');
+  const oil = parseQuantity('Olive Oil 750ml');
+  const pads = parseQuantity('Cotton Pads 80 pcs');
+  const at = (units) => [unitPrice(24.99, coffee, '$', units).text,
+    unitPrice(9.75, oil, '€', units).text, unitPrice(3.2, pads, '£', units).text];
+
+  n++; assert.deepStrictEqual(at(undefined), ['$7.35/100g', '€1.30/100ml', '£0.04/pc'], 'defaults');
+  n++; assert.deepStrictEqual(at({}), at(undefined), 'empty choice is the default');
+  n++; assert.deepStrictEqual(at({ mass: 'kg', volume: 'l' }), ['$73.50/kg', '€13/L', '£0.04/pc'],
+    'EU shelf labels; counts stay per piece');
+  n++; assert.deepStrictEqual(at({ mass: 'oz', volume: 'floz' }), ['$2.08/oz', '€0.38/fl oz', '£0.04/pc'],
+    'US shelf labels');
+  n++; assert.strictEqual(unitPrice(24.99, coffee, '$', { mass: 'lb' }).text, '$33.34/lb');
+  n++; assert.strictEqual(displayFor('mass', { mass: 'stone' }).label, '100g', 'unknown choice falls back');
+  n++; assert.strictEqual(displayFor('mass', { mass: 'toString' }).label, '100g', 'no prototype keys');
+  n++; assert.strictEqual(displayFor('count', { count: 'kg' }).label, 'pc');
+
+  // Same order whatever the unit, so best and worst do not move when it changes.
+  const titles = ['Rice 5kg', 'Rice 1kg', 'Rice 25kg'];
+  const prices = [310, 75, 1400];
+  const grades = (units) => {
+    const v = titles.map((t, i) => unitPrice(prices[i], parseQuantity(t), '₱', units).value);
+    const g = rank(v);
+    return v.map(g);
+  };
+  n++; assert.deepStrictEqual(grades({ mass: 'kg' }), grades(undefined));
 }
 
 // --- outlier suppression, from a live shopee.ph search --------------------

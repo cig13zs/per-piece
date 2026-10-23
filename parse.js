@@ -100,12 +100,37 @@ const RANGE = {
 
 const BASE_LABEL = { mass: 'g', volume: 'ml', count: 'pc' };
 
-// How the badge is expressed: per 100 g / per 100 ml / per piece.
+// How the badge is expressed: per 100 g / per 100 ml / per piece by default.
 const DISPLAY = {
   mass:   { per: 100, label: '100g' },
   volume: { per: 100, label: '100ml' },
   count:  { per: 1,   label: 'pc' },
 };
+
+// What the shopper can switch mass and volume to in the popup, matching the
+// shelf labels they already read: per kg and per L in Europe, per oz and per
+// fl oz in the US. Counts stay per piece. Values are base units per display unit.
+const DISPLAY_CHOICES = {
+  mass: {
+    '100g': DISPLAY.mass,
+    kg: { per: 1000, label: 'kg' },
+    oz: { per: 28.3495, label: 'oz' },
+    lb: { per: 453.592, label: 'lb' },
+  },
+  volume: {
+    '100ml': DISPLAY.volume,
+    l: { per: 1000, label: 'L' },
+    floz: { per: 29.5735, label: 'fl oz' },
+  },
+};
+
+/** The display unit for a dimension; unknown or missing choices fall back to the default. */
+function displayFor(dimension, units) {
+  const choices = DISPLAY_CHOICES[dimension];
+  const pick = units && choices && Object.prototype.hasOwnProperty.call(choices, units[dimension])
+    ? choices[units[dimension]] : null;
+  return pick || DISPLAY[dimension];
+}
 
 function num(raw) {
   // "1,5" and "1.5" both appear; commas inside integers are thousands sep.
@@ -297,11 +322,13 @@ function parsePrice(text) {
 
 /**
  * Unit price for a tile. Returns { value, label, text, dimension } or null.
- * `value` is comparable only against the same `dimension`.
+ * `value` is comparable only against the same `dimension` and the same `units`.
+ * `units` is the popup choice, e.g. { mass: 'kg', volume: 'l' }; omitted means
+ * per 100 g / per 100 ml.
  */
-function unitPrice(price, qty, symbol) {
+function unitPrice(price, qty, symbol, units) {
   if (!price || !qty) return null;
-  const d = DISPLAY[qty.dimension];
+  const d = displayFor(qty.dimension, units);
   const value = (price / qty.amount) * d.per;
   if (!Number.isFinite(value) || value <= 0) return null;
   return {
@@ -369,6 +396,6 @@ function rank(values) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     parseQuantity, parsePrice, parseMoney, toNumber, hasMoney,
-    unitPrice, rank, plausible, formatMoney,
+    unitPrice, rank, plausible, formatMoney, displayFor, DISPLAY_CHOICES,
   };
 }
