@@ -43,6 +43,13 @@
   .w { background: #fdeaea; border-color: #f0a3a3; color: #a11a1a; }
   .n { background: #eef1f4; border-color: #d8dee5; color: #3d4752; }
   .foot { margin-top: 12px; font-size: 11px; color: #7c8590; }
+  #cheap { margin-top: 13px; padding-top: 12px; border-top: 1px solid #e8ecf0; }
+  #cheap h2 { margin: 0 0 6px; font-size: 12px; }
+  #cheap ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  #cheap li { display: flex; align-items: center; gap: 8px; }
+  #cheap .what { flex: 1; min-width: 0; font-size: 11.5px; color: #5d6772; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #cheap .what b { color: #14663a; font-weight: 700; margin-right: 4px; }
+  #cheap button { margin: 0; width: auto; flex: none; padding: 3px 9px; font-size: 11.5px; }
   button {
     margin-top: 13px; width: 100%; padding: 7px 10px; border-radius: 6px;
     border: 1px solid #d3dae1; background: #f7f9fb; color: #24303c;
@@ -63,6 +70,7 @@
   @media (prefers-color-scheme: dark) {
     button, select { background: #222831; border-color: #39414b; color: #dfe6ed; }
     .units label { color: #98a2ad; }
+    #cheap { border-color: #2a3038; } #cheap .what { color: #98a2ad; } #cheap .what b { color: #7fe0a6; }
     button:hover { background: #2a323c; }
     #msg { color: #98a2ad; }
     #kofi { color: #6bd39b; }
@@ -106,6 +114,10 @@ Walmart, Target and Flipkart. On any other shop, press Scan this page.</p>
     <option value="floz">per fl oz</option>
   </select>
 </div>
+<section id="cheap" aria-labelledby="cheap-h" hidden>
+  <h2 id="cheap-h">Cheapest on this page</h2>
+  <ul id="cheap-list"></ul>
+</section>
 <button id="scan">Scan this page</button>
 <button id="report" class="quiet">Report a wrong or missing price</button>
 <div id="msg"></div>
