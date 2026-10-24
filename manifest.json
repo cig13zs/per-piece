@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Per Piece - Unit Price Calculator per 100g, 100ml or Piece",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Unit price on Amazon and other shops: the real cost per 100g, 100ml or piece, under every price, so bundles stop looking cheap.",
   "permissions": [
     "storage",

@@ -1,6 +1,6 @@
 # Privacy policy - Per Piece
 
-Last updated: 4 September 2026
+Last updated: 23 October 2026
 
 ## What is collected
 
@@ -49,15 +49,17 @@ tabs, and closing the popup without pressing the button grants nothing.
 
 ## What is stored
 
-One setting: whether the badges are switched on or off. It is kept in Chrome's
-local extension storage on your own computer. It is not synced and not
+Two settings: whether the badges are switched on or off, and which unit you
+picked for weight and volume (for example per kg). They are kept in Chrome's
+local extension storage on your own computer. They are not synced and not
 transmitted.
 
 Removing the extension removes it.
 
 ## Permissions
 
-**`storage`** - saves the on/off switch described above. Nothing else is stored.
+**`storage`** - saves the on/off switch and the unit choice described above.
+Nothing else is stored.
 
 **`activeTab`** - lets the "Scan this page" button work on a shop that is not in
 the list, for that one tab, only when you press it.

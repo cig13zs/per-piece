@@ -50,7 +50,7 @@ price after it would be wrong too.
 | `parse.js` | Quantity parsing, currency and number parsing, unit-price maths, ranking. Pure, no DOM. |
 | `content.js` | Finds tiles, injects badges, watches for infinite scroll. |
 | `content.css` | Badge styling, every property explicit so the stores' cascade cannot reach it. |
-| `popup.html/js` | On/off switch, scan-this-page button, report button. |
+| `popup.html/js` | On/off switch, unit pickers, scan-this-page button, report button. |
 | `test/parse.test.js` | Assertions over real title formats, prices and currencies. |
 | `test/fixture.html` | Fake Shopee and Amazon grids for checking the DOM layer in a browser. |
 | `build.mjs` | Packs the shipped files into the store zip. |
@@ -97,7 +97,9 @@ a page showing two never compares across them.
 
 ## Units
 
-Mass and volume are shown per 100 g and per 100 ml. Counts are shown per piece.
+Mass and volume are shown per 100 g and per 100 ml by default. The popup can
+switch weight to per kg, per oz or per lb and volume to per litre or per fl oz,
+to match the shelf labels you already read. Counts are shown per piece.
 When a listing carries both a size and a count (`Vitamin C 500mg 100s`), it
 means "100 units of that size", so per piece is the honest reading - per 100 g
 of a tablet bottle is meaningless. Explicit multipacks (`300g x 6`, `24 x 22g`,
