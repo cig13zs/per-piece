@@ -17,6 +17,7 @@
   const MAX_CLIMB = 14;              // deep enough for Amazon and eBay tiles
 
   let enabled = true;
+  let units = {};                    // popup choice: { mass: 'kg', volume: 'l' }
   let timer = null;
 
   // Diagnostics for a user-initiated report. Held in memory for this page
@@ -190,7 +191,7 @@
       const money = parseMoney(visibleText(pe));
       if (!money) continue;
       const title = titleOf(tile);
-      const up = unitPrice(money.value, parseQuantity(title), money.symbol);
+      const up = unitPrice(money.value, parseQuantity(title), money.symbol, units);
       const price = formatMoney(money.value, money.symbol);
 
       if (up) found.push({ tile, priceEl: pe, up, title, price, sym: money.symbol });
@@ -266,14 +267,16 @@
   // Re-entry point for the popup's "Scan this page" button.
   window.__perPieceScan = schedule;
 
-  chrome.storage.local.get({ enabled: true }, (s) => {
+  chrome.storage.local.get({ enabled: true, units: {} }, (s) => {
     enabled = s.enabled;
+    units = s.units || {};
     if (enabled) schedule();
   });
 
   chrome.storage.onChanged.addListener((ch) => {
-    if (!ch.enabled) return;
-    enabled = ch.enabled.newValue;
+    if (ch.units) units = ch.units.newValue || {};
+    if (ch.enabled) enabled = ch.enabled.newValue;
+    if (!ch.units && !ch.enabled) return;
     if (enabled) scan(); else clear();
   });
 
