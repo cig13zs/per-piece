@@ -12,6 +12,9 @@ at ₱560 gets a red **₱31.1/100g**, because per gram it is half again as
 expensive. On amazon.com the same badge reads **$2.49/100g**, in dollars,
 because the currency is taken from the page.
 
+Open the popup on a long results page and it lists the cheapest item per
+unit, with a **Show** button that scrolls straight to that tile.
+
 ## How it works
 
 Everything happens on the page you are already looking at. There is no server,

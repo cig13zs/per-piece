@@ -54,6 +54,21 @@
   outline-offset: 1px !important;
 }
 
+/* "Show" in the popup: ring the cheapest tile for a moment after scrolling to it. */
+[data-pp].pp-flash {
+  outline: 3px solid #1f9d55 !important;
+  outline-offset: 3px !important;
+  animation: pp-flash .5s ease-in-out 3 !important;
+}
+
+@keyframes pp-flash {
+  50% { outline-color: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-pp].pp-flash { animation: none !important; }
+}
+
 @media (prefers-color-scheme: dark) {
   .pp-plain { background: #2a3038 !important; border-color: #3c444e !important; color: #cbd3dc !important; }
   .pp-best  { background: #14331f !important; border-color: #2f7a4d !important; color: #7fe0a6 !important; }

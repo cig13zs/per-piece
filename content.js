@@ -25,6 +25,9 @@
   // valuable rows are the misses - a tile we priced but could not size.
   let report = { ok: [], miss: [], hidden: [] };
 
+  // The cheapest tile of each unit and currency, for the popup's "Show" button.
+  let cheapest = [];
+
   const isOurs = (el) => el.classList && el.classList.contains(BADGE);
 
   // getComputedStyle is the expensive call here, so memoise per scan.
@@ -202,6 +205,7 @@
     // meaningless, and so is $/100g against ₱/100g on a page showing both.
     const byDim = {};
     for (const f of found) (byDim[`${f.up.dimension}|${f.sym}`] ||= []).push(f);
+    const ranked = [];
 
     for (const dim of Object.keys(byDim)) {
       const all = byDim[dim];
@@ -242,13 +246,36 @@
 
       for (const f of group) {
         report.ok.push({ title: f.title, price: f.price, unit: f.up.text });
+        ranked.push({ group: dim, value: f.up.value, tile: f.tile, title: f.title, price: f.price, unit: f.up.text });
       }
     }
+    cheapest = cheapestPerGroup(ranked);
+  }
+
+  // Scrolls the cheapest tile of group i into view and rings it for a moment.
+  function showCheapest(i) {
+    const c = cheapest[i];
+    if (!c || !c.tile.isConnected) return false;
+    const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    c.tile.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'auto' });
+    c.tile.classList.remove('pp-flash');
+    void c.tile.offsetWidth;   // restart the animation on a second press
+    c.tile.classList.add('pp-flash');
+    setTimeout(() => c.tile.classList.remove('pp-flash'), 2000);
+    return true;
   }
 
   // Answers the popup's "report a wrong price" button. Only ever runs when the
   // user clicks it, and only returns what this page already showed them.
   chrome.runtime.onMessage.addListener((msg, _sender, respond) => {
+    if (msg && msg.type === 'pp-cheapest') {
+      respond(cheapest.map(({ title, price, unit, count }) => ({ title, price, unit, count })));
+      return;
+    }
+    if (msg && msg.type === 'pp-show') {
+      respond(showCheapest(msg.index));
+      return;
+    }
     if (!msg || msg.type !== 'pp-report') return;
     respond({
       // Path only. Query strings on these stores carry session and referral

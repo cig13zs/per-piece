@@ -37,7 +37,8 @@ already displayed on the page. It uses them to calculate a price per unit and
 to draw a small badge next to the price.
 
 That reading happens in your browser and the result is discarded when you leave
-the page. Nothing is written to disk, and nothing leaves your device.
+the page. When you open the popup, it asks the page for the cheapest item it
+found so it can list it; that also stays in your browser. Nothing is written to disk, and nothing leaves your device.
 
 ## Scan this page
 

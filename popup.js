@@ -45,11 +45,53 @@ scanBtn.addEventListener('click', async () => {
       await chrome.scripting.executeScript({ target, files: ['parse.js', 'content.js'] });
     }
     msg.textContent = 'Scanned. Badges appear where a size could be read.';
+    setTimeout(loadCheapest, 600);   // the scan is debounced on the page
   } catch {
     msg.textContent = 'Chrome will not let extensions run on this page.';
   }
   scanBtn.disabled = false;
 });
+
+// "Cheapest on this page": one row per unit and currency, each with a Show
+// button that scrolls the shop page to that tile. Titles come from the page,
+// so they are written as text, never as HTML.
+const cheapBox = document.getElementById('cheap');
+const cheapList = document.getElementById('cheap-list');
+
+async function loadCheapest() {
+  let list;
+  try {
+    list = await chrome.tabs.sendMessage((await tab()).id, { type: 'pp-cheapest' });
+  } catch { list = null; }
+  cheapList.replaceChildren();
+  cheapBox.hidden = !Array.isArray(list) || !list.length;
+  if (cheapBox.hidden) return;
+  list.slice(0, 4).forEach((c, i) => {
+    const li = document.createElement('li');
+    const what = document.createElement('span');
+    what.className = 'what';
+    const unit = document.createElement('b');
+    unit.textContent = c.unit;
+    what.append(unit, c.title);
+    what.title = `${c.title}, ${c.price}. Cheapest of ${c.count} priced per ${c.unit.split('/').pop()}.`;
+    const show = document.createElement('button');
+    show.type = 'button';
+    show.textContent = 'Show';
+    show.setAttribute('aria-label', `Show ${c.title}`);
+    show.addEventListener('click', async () => {
+      try {
+        const ok = await chrome.tabs.sendMessage((await tab()).id, { type: 'pp-show', index: i });
+        if (!ok) msg.textContent = 'That tile is gone. Scan the page again.';
+      } catch {
+        msg.textContent = 'Reload the shop page and try again.';
+      }
+    });
+    li.append(what, show);
+    cheapList.append(li);
+  });
+}
+
+loadCheapest();
 
 const rows = (list) => list.slice(0, MAX_ROWS)
   .map((r) => `- ${r.title}  |  ${r.price}${r.unit ? `  ->  ${r.unit}` : ''}`)
